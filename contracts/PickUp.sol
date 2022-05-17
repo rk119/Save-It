@@ -175,24 +175,22 @@ contract PickUp {
         // uint256 donationAmount = calculateCost(d.id, d.amountInGrams);
         uint256 i = 0;
         uint256 withdrawn = 0;
-        // cost = 25
-        uint256 tempCost = 25; // tempCost = 25
-        while (tempCost > 0) {
-            address donator = donate.getDonator(i); // Rahat, 5 // 0
+        uint256 cost = 25;
+        while (cost > 0) {
+            address donator = donate.getDonator(i);
             uint amount = donate.getAddressToAmount(donator);
             if (amount > 0) {
-                if (amount >= tempCost) {
-                    withdrawn = uint(donate.withdraw(donator, tempCost));
+                if (amount >= cost) {
+                    withdrawn = uint(donate.withdraw(donator, cost));
                 }
-                if (amount < tempCost) {
+                if (amount < cost) {
                     withdrawn = uint(donate.withdraw(donator, amount));
                 }
-                tempCost -= withdrawn;
+                cost -= withdrawn;
                 emit notifyDonator(donator, withdrawn, d.id);
             }
-            i++; // we should be comparing with tempCost right?
+            i++;
         }
-
         delete s_deliveryRequests[0];
     }
 
