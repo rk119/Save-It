@@ -11,6 +11,7 @@ contract Donate {
     uint256 public totalDonators;
     uint256 public totalDonations;
     uint256 public entries;
+    address[] private donators;
     mapping(address => bool) private addressToRegistered;
     mapping(address => uint256) private addressToAmount;
     mapping(uint256 => address) private idToAddress;
@@ -45,10 +46,35 @@ contract Donate {
         totalDonations += msg.value;
         idToAddress[++entries] = msg.sender;
         if (!addressToRegistered[msg.sender]) {
+            donators.push(msg.sender);
             addressToRegistered[msg.sender] = true;
             totalDonators++;
         }
         emit DonationAccepted(msg.sender, msg.value);
+    }
+
+    function getVersion() public view returns (uint256) {
+        return s_priceFeed.version();
+    }
+
+    function getDonators(uint256 index) public view returns (address) {
+        return donators[index];
+    }
+
+    function getAddressToRegistered(address donator) public view returns (bool) {
+        return addressToRegistered[donator];
+    }
+
+    function getAddressToAmount(address donator) public view returns (uint256) {
+        return addressToAmount[donator];
+    }
+
+    function getIdToAddress(uint256 id) public view returns (address) {
+        return idToAddress[id];
+    }
+
+    function getOwner() public view returns (address) {
+        return i_owner;
     }
 
     function getPriceFeed() public view returns (AggregatorV3Interface) {
