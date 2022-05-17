@@ -175,4 +175,13 @@ describe("PickUp contract", function () {
             }).should.be.rejected;
         });
     });
+
+    // test the appending of a new delivery request
+    describe("Request of a new food delivery", async () => {
+        let result;
+        beforeEach(async () => {
+        });
+        it("Desc", async () => {
+        });
+    });
 });
