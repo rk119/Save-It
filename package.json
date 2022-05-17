@@ -10,6 +10,7 @@
     "web3": "^1.7.3"
   },
   "dependencies": {
-    "@chainlink/contracts": "^0.4.1"
+    "@chainlink/contracts": "^0.4.1",
+    "@openzeppelin/contracts": "^4.6.0"
   }
 }

@@ -3,8 +3,9 @@
 pragma solidity ^0.8.7;
 
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Donate {
+contract Donate is Ownable {
 
     uint256 public constant MINIMUM_USD = 10 * 10**18;
     address payable private immutable i_owner;
@@ -74,14 +75,10 @@ contract Donate {
         return idToAddress[id];
     }
 
-    function withdraw(address donator, uint256 amount) public payable returns(uint256) {
+    function withdraw(address donator, uint256 amount) public payable onlyOwner returns(uint256) {
         addressToAmount[donator] = addressToAmount[donator] - amount;
         payable(i_owner).transfer(amount);
         return amount;
-    }
-
-    function getOwner() public view returns (address) {
-        return i_owner;
     }
 
     function getPriceFeed() public view returns (AggregatorV3Interface) {
