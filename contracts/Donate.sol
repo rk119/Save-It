@@ -50,7 +50,7 @@ contract Donate {
             addressToRegistered[msg.sender] = true;
             totalDonators++;
         }
-        payable(i_owner).transfer(msg.value);
+        // payable(i_owner).transfer(msg.value);
         emit DonationAccepted(msg.sender, msg.value);
     }
 
@@ -72,6 +72,11 @@ contract Donate {
 
     function getIdToAddress(uint256 id) public view returns (address) {
         return idToAddress[id];
+    }
+
+    function withdraw(address donator, uint256 amount) public payable {
+        addressToAmount[donator] = addressToAmount[donator] - amount;
+        payable(i_owner).transfer(amount);
     }
 
     function getOwner() public view returns (address) {
