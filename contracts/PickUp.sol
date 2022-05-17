@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 // 1.	Implement a basic pickup.sol.
-// a.	A simple function to request service.
 // b.	Approve donations received by the owner.
-// c.	Tests for each function simultaneously.
 
 // 2.	Deduct only 25 dollars every time a request is made.
 // a.	Add tests to see if the accounts balances are deducted correctly and if u received the correct amount after all the deductions.
@@ -46,7 +44,7 @@ contract PickUp {
         foodPlaceId = 0;
     }
 
-    // register a new food place and adds it to the mapping
+    // register a new food place and add it to the mapping
     function registerFoodPlace(
         string memory _name,
         string memory _latitude,
@@ -82,7 +80,7 @@ contract PickUp {
         );
     }
 
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     // id counter to keep track of the delivery requests
     uint256 public requestId;
@@ -128,9 +126,23 @@ contract PickUp {
         );
     }
 
+    // onlyOwner function that approves a delivery request
+    // the owner will fund the request from the donation pool
     function approveDelivery() public {
         // ensure there are pending requests
         // require(deliveryRequests.length > 0, "No pending requests");
         // approve the donation
+        // call fund function
+    }
+
+    function fundDelivery(uint256 _donationAmount) public {
+        // deduct the donation amount from the donation pool
+        // call approve function
+    }
+
+    // calculates the cost of a given delivery request
+    function calculateCost(uint256 _id, uint256 _amountInGrams) public returns(uint256) {
+        // calculate the cost of the delivery
+        // return the cost
     }
 }
