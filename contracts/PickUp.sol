@@ -13,8 +13,14 @@
 pragma solidity ^0.8.7;
 
 contract PickUp {
+
+    // this section describes a food organization and its methods
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
     // filler variable
     string public name;
+    // the owner of the contract
+    address private owner;
     // id counter to keep track of the food places
     uint256 public foodPlaceId;
     // a mapping to store all the food places
@@ -40,6 +46,7 @@ contract PickUp {
     );
 
     constructor() {
+        owner = msg.sender;
         name = "PickUp";
         foodPlaceId = 0;
     }
@@ -80,6 +87,7 @@ contract PickUp {
         );
     }
 
+    // this section describes the request and approval of a food delivery service
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     // id counter to keep track of the delivery requests
@@ -101,15 +109,15 @@ contract PickUp {
         uint256 requestId
     );
 
-    // a food place can request the transportation 
+    // a food place can request the transportation
     // service to pack and deliver their food
-    function requestDelivery(
-        uint256 _id,
-        uint256 _amountInGrams
-    ) public {
+    function requestDelivery(uint256 _id, uint256 _amountInGrams) public {
         // ensure the parameters are valid
         require(_id > 0 && _id <= foodPlaceId, "Invalid. ID does not exist");
-        require(_amountInGrams > 0 && _amountInGrams < 100000, "Invalid. Specified food amount can not be transported");
+        require(
+            _amountInGrams > 0 && _amountInGrams < 100000,
+            "Invalid. Specified food amount can not be transported"
+        );
         // increment the requestsId
         requestId++;
         // add a new pending request
@@ -119,29 +127,39 @@ contract PickUp {
             requestId
         );
         // trigger an event for the new delivery request
-        emit requestFoodDelivery(
-            _id,
-            _amountInGrams,
-            requestId
-        );
+        emit requestFoodDelivery(_id, _amountInGrams, requestId);
+    }
+
+    // this section describes owner only methods such as funding
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+
+    function transferOwnership(address _newOwner) external onlyOwner {
+        owner = _newOwner;
     }
 
     // onlyOwner function that approves a delivery request
     // the owner will fund the request from the donation pool
-    function approveDelivery() public {
+    function approveDelivery() public onlyOwner {
         // ensure there are pending requests
         // require(deliveryRequests.length > 0, "No pending requests");
         // approve the donation
         // call fund function
     }
 
-    function fundDelivery(uint256 _donationAmount) public {
+    function fundDelivery(uint256 _donationAmount) public onlyOwner {
         // deduct the donation amount from the donation pool
         // call approve function
     }
 
     // calculates the cost of a given delivery request
-    function calculateCost(uint256 _id, uint256 _amountInGrams) public returns(uint256) {
+    function calculateCost(uint256 _id, uint256 _amountInGrams)
+        public
+        returns (uint256)
+    {
         // calculate the cost of the delivery
         // return the cost
     }
