@@ -7,7 +7,7 @@ describe("PickUp contract", function () {
 
     before(async function () {
         accounts = await web3.eth.getAccounts();
-        [deployer, foodPlace1, foodPlace2, foodPlace3, foodPlace4] =
+        [deployer, foodPlace1, foodPlace2, foodPlace3, foodPlace4, requester1, requester2] =
             accounts;
         pickup = await PickUp.new();
     });
@@ -141,7 +141,7 @@ describe("PickUp contract", function () {
                 "6.89210",
                 { from: foodPlace1 }
             );
-            result = await pickup.requestDelivery(1, 10000);
+            result = await pickup.requestDelivery(1, 10000, { from: requester1 });
             numOfRequests = await pickup.requestId();
         });
         it("Appends a new delivery request", async () => {
@@ -156,6 +156,7 @@ describe("PickUp contract", function () {
             // the expected values need to be changed
             assert.equal(event.id, 1, "the ID is correct");
             assert.equal(event.amountInGrams, 10000, "the amount is correct");
+            assert.equal(event.requester, requester1, "the requester is correct");
             // FAILURE: parameters are invalid
             await pickup.registerFoodPlace(0, 0, "6.89210", {
                 from: foodPlace1,
