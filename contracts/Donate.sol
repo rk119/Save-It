@@ -7,7 +7,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 contract Donate {
 
     uint256 public constant MINIMUM_USD = 10 * 10**18;
-    address private immutable i_owner;
+    address payable private immutable i_owner;
     uint256 public totalDonators;
     uint256 public totalDonations;
     uint256 public entries;
@@ -20,7 +20,7 @@ contract Donate {
 
     constructor(address priceFeed) {
         s_priceFeed = AggregatorV3Interface(priceFeed);
-        i_owner = msg.sender;
+        i_owner = payable(msg.sender);
         totalDonators = 0;
         totalDonations = 0;
         entries = 0;
@@ -50,6 +50,7 @@ contract Donate {
             addressToRegistered[msg.sender] = true;
             totalDonators++;
         }
+        payable(i_owner).transfer(msg.value);
         emit DonationAccepted(msg.sender, msg.value);
     }
 
@@ -57,7 +58,7 @@ contract Donate {
         return s_priceFeed.version();
     }
 
-    function getDonators(uint256 index) public view returns (address) {
+    function getDonator(uint256 index) public view returns (address) {
         return donators[index];
     }
 
@@ -80,5 +81,4 @@ contract Donate {
     function getPriceFeed() public view returns (AggregatorV3Interface) {
         return s_priceFeed;
     }
-    
 }
