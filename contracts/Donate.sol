@@ -74,9 +74,10 @@ contract Donate {
         return idToAddress[id];
     }
 
-    function withdraw(address donator, uint256 amount) public payable {
+    function withdraw(address donator, uint256 amount) public payable returns(uint256) {
         addressToAmount[donator] = addressToAmount[donator] - amount;
         payable(i_owner).transfer(amount);
+        return amount;
     }
 
     function getOwner() public view returns (address) {
