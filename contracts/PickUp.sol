@@ -10,7 +10,7 @@
 // a.	First look for any API that calculates cost between two locations in the US state.
 // b.	Then implement using chainlink API services.
 
-pragma solidity ^0.8.7;
+pragma solidity ^0.8.0;
 
 import "./Donate.sol";
 
