@@ -5,7 +5,7 @@ pragma solidity ^0.8.7;
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Donate is Ownable{
+contract Donate is Ownable {
 
     uint256 public constant MINIMUM_USD = 10 * 10**18;
     address payable private immutable i_owner;
