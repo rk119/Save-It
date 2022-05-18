@@ -37,9 +37,9 @@ describe("PickUp contract", function () {
                 "6.89210",
                 { from: foodPlace1 }
             );
-            numOfFoodPlaces = await pickup.foodPlaceId();
+            numOfFoodPlaces = await pickup.s_foodPlaceId();
         });
-        it("Resgisters a food place", async () => {
+        it("Registers a food place", async () => {
             assert.equal(numOfFoodPlaces, 1);
             const event = result.logs[0].args;
             assert.equal(
@@ -142,7 +142,7 @@ describe("PickUp contract", function () {
                 { from: foodPlace1 }
             );
             result = await pickup.requestDelivery(1, 10000, { from: requester1 });
-            numOfRequests = await pickup.requestId();
+            numOfRequests = await pickup.s_requestId();
         });
         it("Appends a new delivery request", async () => {
             assert.equal(numOfRequests, 1);
@@ -177,11 +177,21 @@ describe("PickUp contract", function () {
     });
 
     // test the appending of a new delivery request
-    describe("Request of a new food delivery", async () => {
+    describe("Funding of a delivery", async () => {
         let result;
         beforeEach(async () => {
+            await pickup.registerFoodPlace(
+                "Baskin Robbins",
+                "42.51276",
+                "6.89210",
+                { from: foodPlace1 }
+            );
+            result = await pickup.fundDelivery();
         });
-        it("Desc", async () => {
+        it("Deducts 25 USD from the donations", async () => {
+            const event = result.logs[0].args;
+            assert.equal(
+            );
         });
     });
 });

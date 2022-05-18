@@ -48,8 +48,8 @@ contract PickUp {
 
     constructor() {
         i_owner = msg.sender;
-        name = "PickUp";
         s_foodPlaceId = 0;
+        name = "PickUp";
     }
 
     // register a new food place and add it to the mapping
@@ -168,11 +168,9 @@ contract PickUp {
 
     // onlyOwner function that approves a delivery request
     // the owner will fund the request from the donation pool
-    function approveAndFundDelivery() public payable onlyOwner {
+    function fundDelivery() public payable onlyOwner {
         require(s_deliveryRequests.length > 0, "No pending requests");
-        // find the cost of the request
         deliveryRequest memory d = s_deliveryRequests[0];
-        // uint256 donationAmount = calculateCost(d.id, d.amountInGrams);
         uint256 i = 0;
         uint256 withdrawn = 0;
         uint256 cost = 25;
