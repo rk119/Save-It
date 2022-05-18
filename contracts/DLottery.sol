@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.7;
 
 import "./Donate.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
@@ -28,16 +28,21 @@ getter functions
 */
 
 contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
+
+    event RequestedLotteryWinner(uint256 indexed requestId);
+    event LotteryEnter(address indexed player);
+    event WinnerPicked(address indexed player);
+
     enum LotteryState {
         PREVIOUS_WINNER,
         NEW_WINNER
     }
     LotteryState public lotteryState;
 
-    address public previousWinner;
-    address public currentWinner;
-    uint256 public randomness;
-    address[] public donators;
+    struct Foodie {
+        string food;
+        address owner;
+    }
 
     // Chainlink VRF Variables
     VRFCoordinatorV2Interface private immutable i_vrfCoordinator;
@@ -50,19 +55,14 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     // Lottery Variables
     uint256 private immutable i_interval;
     uint256 private s_lastTimeStamp;
-    address private s_recentWinner;
+    address private s_previousWinner;
+    address private s_currentWinner;
     uint256 private i_entranceFee;
-    address payable[] private s_players;
+    address payable[] private s_donators;
+    // address[] private s_donators;
     LotteryState private s_lotteryState;
-
-    event RequestedLotteryWinner(uint256 indexed requestId);
-    event LotteryEnter(address indexed player);
-    event WinnerPicked(address indexed player);
-
-    struct FreeFood {
-        address owner;
-        string food;
-    }
+    // the monthly free food
+    Foodie[] private foodies;
 
     constructor(
         address vrfCoordinatorV2,
@@ -82,6 +82,11 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         i_callbackGasLimit = callbackGasLimit;
     }
 
+    // should only be called by the owner
+    function addFoodie(string memory _foodie) public {
+        foodies.push(Foodie(_foodie, msg.sender));
+    }
+
     function checkUpkeep(
         bytes memory /* checkData */
     )
@@ -95,7 +100,7 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     {
         bool isOpen = LotteryState.PREVIOUS_WINNER == s_lotteryState;
         bool timePassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
-        bool hasPlayers = s_players.length > 0;
+        bool hasPlayers = s_donators.length > 0;
         bool hasBalance = address(this).balance > 0;
         upkeepNeeded = (timePassed && isOpen && hasBalance && hasPlayers);
         return (upkeepNeeded, "0x0"); // can we comment this out?
@@ -109,7 +114,7 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         if (!upkeepNeeded) {
             revert DLottery__UpkeepNotNeeded(
                 address(this).balance,
-                s_players.length,
+                s_donators.length,
                 uint256(s_lotteryState)
             );
         }
@@ -128,18 +133,26 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         uint256, /* requestId */
         uint256[] memory randomWords
     ) internal override {
-        uint256 indexOfWinner = randomWords[0] % s_players.length;
-        address payable recentWinner = s_players[indexOfWinner];
-        s_recentWinner = recentWinner;
-        s_players = new address payable[](0);
+        s_previousWinner = s_currentWinner;
+        // select a random winner
+        uint256 indexOfWinner = randomWords[0] % s_donators.length;
+        address payable winner = s_donators[indexOfWinner]; // change payable
+        s_currentWinner = winner;
+        // reset the lottery
+        s_donators = new address payable[](0);
         s_lotteryState = LotteryState.PREVIOUS_WINNER;
         s_lastTimeStamp = block.timestamp;
-        (bool success, ) = recentWinner.call{value: address(this).balance}("");
-        // require(success, "Transfer failed");
-        if (!success) {
-            revert DLottery__TransferFailed();
-        }
-        emit WinnerPicked(recentWinner);
+        // the selected winner gets awarded free food!!!
+        // will add randomization on the food so the winner 
+        // gets random food from a predefined selection
+        indexOfWinner = randomWords[0] % foodies.length;
+        Foodie memory foodie = foodies[indexOfWinner];
+        foodie.owner = winner;
+        // (bool success, ) = winner.call{value: address(this).balance}("");
+        // if (!success) {
+        //     revert DLottery__TransferFailed();
+        // }
+        emit WinnerPicked(winner);
     }
 
     /** Getter Functions */
@@ -156,12 +169,16 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         return REQUEST_CONFIRMATIONS;
     }
 
-    function getRecentWinner() public view returns (address) {
-        return s_recentWinner;
+    function getCurrentWinner() public view returns (address) {
+        return s_currentWinner;
+    }
+
+    function getPreviousWinner() public view returns (address) {
+        return s_previousWinner;
     }
 
     function getPlayer(uint256 index) public view returns (address) {
-        return s_players[index];
+        return s_donators[index];
     }
 
     function getLastTimeStamp() public view returns (uint256) {
@@ -177,6 +194,6 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     }
 
     function getNumberOfPlayers() public view returns (uint256) {
-        return s_players.length;
+        return s_donators.length;
     }
 }
