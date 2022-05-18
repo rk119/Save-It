@@ -1,3 +1,4 @@
+const { getNamedAccounts, deployments, ethers, network } = require("hardhat")
 const { assert, AssertionError } = require("chai");
 
 const DLottery = artifacts.require("DLottery.sol");
@@ -9,7 +10,7 @@ describe("DLottery contract", function () {
 
     before(async function () {
         accounts = await web3.eth.getAccounts();
-        [deployer, donator1, donator2, donator3, donator4, donator5, donator6] =
+        [deployer, donator1, donator2, donator3, donator4] =
             accounts;
         dlottery = await DLottery.new(
             "0x6168499c0cFfCaCD319c818142124B7A15E857ab",
@@ -52,8 +53,54 @@ describe("DLottery contract", function () {
             const event4 = result4.logs[0].args;
             assert.equal(event1.food, "Sooubway: Veggie Pattie", "the food is correct");
             assert.equal(event2.food, "Sooubway: Meatball", "the food is correct");
-            assert.equal(event3.food, "Sooubway: Steak and Cheeks","the food is correct");
+            assert.equal(event3.food, "Sooubway: Steak and Cheeks", "the food is correct");
             assert.equal(event4.food, "Sooubway: Smoked Turkey", "the food is correct");
         });
     });
+
+    describe("Doing something", async () => {
+        let result;
+        beforeEach(async () => {
+        });
+        it("Does something", async () => {
+        });
+    });
+
+    // code reference: 
+    // https://github.com/PatrickAlphaC/hardhat-smartcontract-lottery-fcc/blob/main/test/staging/Raffle.staging.test.js
+    xdescribe("fulfillRandomWords", function () {
+        it("works with live Chainlink Keepers and Chainlink VRF, we get a random winner", async function () {
+            console.log("Setting up test...")
+            const startingTimeStamp = await dlottery.getLastTimeStamp()
+            const account = await ethers.getSigners()
+
+            console.log("Setting up Listener...")
+            await new Promise(async (resolve, reject) => {
+                // setup listener before we enter the raffle
+                // Just in case the blockchain moves REALLY fast
+                dlottery.once("WinnerPicked", async () => {
+                    console.log("WinnerPicked event fired!")
+                    resolve()
+                    try {
+                        // add our asserts here
+                        const recentWinner = await dlottery.getRecentWinner()
+                        const lotteryState = await dlottery.getLotteryState()
+                        const endingTimeStamp = await dlottery.getLatestTimeStamp()
+
+                        await expect(dlottery.getPlayer(0)).to.be.reverted
+                        assert.equal(recentWinner.toString(), account[0].address)
+                        assert.equal(lotteryState, 0)
+                        assert(endingTimeStamp > startingTimeStamp)
+                        resolve()
+                    } catch (error) {
+                        console.log(error)
+                        reject(e)
+                    }
+                })
+                console.log("Entering the lottery...")
+                await raffle.enterRaffle({ value: raffleEntranceFee })
+                console.log("Waiting for results...")
+            })
+        })
+    })
 });

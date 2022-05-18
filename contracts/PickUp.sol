@@ -106,7 +106,7 @@ contract PickUp {
     }
 
     // to be emitted when a new food delivery is requested
-    event deliveryRequested(
+    event request(
         uint256 id,
         uint256 amountInGrams,
         uint256 requestId,
@@ -130,7 +130,7 @@ contract PickUp {
             deliveryRequest(_id, _amountInGrams, s_requestId, false, msg.sender)
         );
         // trigger an event for the new delivery request
-        emit deliveryRequested(
+        emit request(
             _id,
             _amountInGrams,
             s_requestId,
@@ -140,6 +140,7 @@ contract PickUp {
     }
 
     // this section describes owner only methods such as funding
+    // and the approval and funding of a food delivery service
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     // simulate 1000 USD donated to the contract
@@ -153,9 +154,7 @@ contract PickUp {
     function transferOwnership(address _newOwner) external onlyOwner {
         i_owner = _newOwner;
     }
-
-    // this section describes the approval and funding of a food delivery service
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    
     event notifyDonator(
         address donator,
         uint256 donation,
@@ -189,6 +188,7 @@ contract PickUp {
             }
             i++;
         }
+        emit request(d.id, d.amountInGrams, d.requestId, true, d.requester);
         delete s_deliveryRequests[0];
     }
 
