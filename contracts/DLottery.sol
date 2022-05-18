@@ -6,6 +6,7 @@ import "./Donate.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
+import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
 import "hardhat/console.sol";
 
 error DLottery__UpkeepNotNeeded(
@@ -14,24 +15,15 @@ error DLottery__UpkeepNotNeeded(
     uint256 lotteryState
 );
 error DLottery__TransferFailed();
-error DLottery__SendMoreToEnterRaffle();
-error DLottery__RaffleNotOpen();
-
-/*
-errors
-state variables
-constructor
-check upkeep
-perform upkeep
-fullfill random words
-getter functions
-*/
+error DLottery__SendMoreToEnterLottery();
+error DLottery__LotteryNotOpen();
 
 contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
 
     event RequestedLotteryWinner(uint256 indexed requestId);
     event LotteryEnter(address indexed player);
     event WinnerPicked(address indexed player);
+    event newFoodieAdded(string food);
 
     enum LotteryState {
         PREVIOUS_WINNER,
@@ -44,6 +36,10 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         address owner;
     }
 
+    /* Variables */
+    string public name;
+    uint256 private lotteryInterval = 30 days; // 2592000 or 30*24*60*60
+
     // Chainlink VRF Variables
     VRFCoordinatorV2Interface private immutable i_vrfCoordinator;
     uint64 private immutable i_subscriptionId;
@@ -53,64 +49,51 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     uint32 private constant NUM_WORDS = 1;
 
     // Lottery Variables
-    uint256 private immutable i_interval;
+    Foodie[] private foodies;
+    address[] private s_donators; // need to get donator data from donate
+    // address payable[] private s_donators;
     uint256 private s_lastTimeStamp;
     address private s_previousWinner;
     address private s_currentWinner;
-    uint256 private i_entranceFee;
-    address payable[] private s_donators;
-    // address[] private s_donators;
     LotteryState private s_lotteryState;
-    // the monthly free food
-    Foodie[] private foodies;
 
     constructor(
         address vrfCoordinatorV2,
         uint64 subscriptionId,
         bytes32 gasLane, // keyHash
-        uint256 interval,
-        uint256 entranceFee,
         uint32 callbackGasLimit
     ) VRFConsumerBaseV2(vrfCoordinatorV2) {
         i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinatorV2);
-        i_gasLane = gasLane;
-        i_interval = interval;
         i_subscriptionId = subscriptionId;
-        i_entranceFee = entranceFee;
+        i_gasLane = gasLane;
+        i_callbackGasLimit = callbackGasLimit;
         s_lotteryState = LotteryState.PREVIOUS_WINNER;
         s_lastTimeStamp = block.timestamp;
-        i_callbackGasLimit = callbackGasLimit;
+        name = "DLottery";
     }
 
     // should only be called by the owner
-    function addFoodie(string memory _foodie) public {
-        foodies.push(Foodie(_foodie, msg.sender));
+    function addFoodie(string memory _food) public {
+        foodies.push(Foodie(_food, msg.sender));
+        emit newFoodieAdded(_food);
     }
 
-    function checkUpkeep(
-        bytes memory /* checkData */
-    )
+    // executes off-chain to check if upkeep is necessary
+    function checkUpkeep(bytes memory /* checkData */)
         public
         view
         override
-        returns (
-            bool upkeepNeeded,
-            bytes memory /* performData */
-        )
-    {
+        returns (bool upkeepNeeded, bytes memory /* performData */) {
         bool isOpen = LotteryState.PREVIOUS_WINNER == s_lotteryState;
-        bool timePassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
-        bool hasPlayers = s_donators.length > 0;
-        bool hasBalance = address(this).balance > 0;
-        upkeepNeeded = (timePassed && isOpen && hasBalance && hasPlayers);
-        return (upkeepNeeded, "0x0"); // can we comment this out?
+        bool timePassed = ((block.timestamp - s_lastTimeStamp) > lotteryInterval);
+        bool hasDonators = s_donators.length > 0;
+        bool hasDonations = address(this).balance > 0;
+        upkeepNeeded = (isOpen && timePassed && hasDonators && hasDonations);
+        return (upkeepNeeded, "0x0");
     }
 
-    function performUpkeep(
-        bytes calldata /* performData */
-    ) external override {
+    function performUpkeep(bytes calldata /* performData */) external override {
         (bool upkeepNeeded, ) = checkUpkeep("");
-        // require(upkeepNeeded, "Upkeep not needed");
         if (!upkeepNeeded) {
             revert DLottery__UpkeepNotNeeded(
                 address(this).balance,
@@ -136,22 +119,20 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         s_previousWinner = s_currentWinner;
         // select a random winner
         uint256 indexOfWinner = randomWords[0] % s_donators.length;
-        address payable winner = s_donators[indexOfWinner]; // change payable
+        address winner = s_donators[indexOfWinner];
         s_currentWinner = winner;
         // reset the lottery
-        s_donators = new address payable[](0);
+        s_donators = new address[](0);
         s_lotteryState = LotteryState.PREVIOUS_WINNER;
         s_lastTimeStamp = block.timestamp;
         // the selected winner gets awarded free food!!!
-        // will add randomization on the food so the winner 
-        // gets random food from a predefined selection
         indexOfWinner = randomWords[0] % foodies.length;
         Foodie memory foodie = foodies[indexOfWinner];
         foodie.owner = winner;
-        // (bool success, ) = winner.call{value: address(this).balance}("");
-        // if (!success) {
-        //     revert DLottery__TransferFailed();
-        // }
+        bool success = (foodie.owner == winner);
+        if (!success) {
+            revert DLottery__TransferFailed();
+        }
         emit WinnerPicked(winner);
     }
 
@@ -186,14 +167,14 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     }
 
     function getInterval() public view returns (uint256) {
-        return i_interval;
-    }
-
-    function getEntranceFee() public view returns (uint256) {
-        return i_entranceFee;
+        return lotteryInterval;
     }
 
     function getNumberOfPlayers() public view returns (uint256) {
         return s_donators.length;
+    }
+
+    function getNumberOfFoodies() public view returns (uint256) {
+        return foodies.length;
     }
 }
