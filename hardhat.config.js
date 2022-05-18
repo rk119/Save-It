@@ -2,7 +2,9 @@
  * @type import('hardhat/config').HardhatUserConfig
  */
 
-require("@nomiclabs/hardhat-truffle5");
+require("@nomiclabs/hardhat-truffle5")
+require("solidity-coverage")
+require("hardhat-deploy")
 
 module.exports = {
   defaultNetwork: "hardhat",

@@ -32,8 +32,8 @@ contract Donate is Ownable {
         return uint256(answer * 10000000000);
     }
 
-    function getConversionRate(uint256 ethAmount, AggregatorV3Interface priceFeed) internal view returns (uint256) {
-        uint256 ethPrice = getPrice(priceFeed);
+    function getConversionRate(uint256 ethAmount) internal view returns (uint256) {
+        uint256 ethPrice = getPrice(s_priceFeed);
         uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1000000000000000000;
         return ethAmountInUsd;
     }
@@ -42,7 +42,7 @@ contract Donate is Ownable {
         // uint256 minimumEth = 1000000000000000000;
         // require(msg.value >= minimumEth);
         // require(getConversionRate(msg.value) >= minimumUSD, "You need to spend more ETH!");
-        require(getConversionRate(msg.value, s_priceFeed) >= MINIMUM_USD, "You need to spend more ETH!");
+        require(getConversionRate(msg.value) >= MINIMUM_USD, "You need to spend more ETH!");
         addressToAmount[msg.sender] += msg.value;
         totalDonations += msg.value;
         idToAddress[++entries] = msg.sender;
