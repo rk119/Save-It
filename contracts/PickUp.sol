@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 
 // 1.	Implement a basic pickup.sol.
-// b.	Approve donations received by the owner.
-// 2.	Deduct only 25 dollars every time a request is made.
 // a.	Add tests to see if the accounts balances are deducted correctly
 //      and if u received the correct amount after all the deductions.
 
@@ -38,13 +36,7 @@ contract PickUp {
     }
 
     // to be emitted when a new food place is registered
-    event foodPlaceRegistered(
-        uint256 id,
-        string name,
-        string latitude,
-        string longitude,
-        address owner
-    );
+    event foodPlaceRegistered(uint256 id);
 
     constructor() {
         i_owner = msg.sender;
@@ -79,13 +71,7 @@ contract PickUp {
             msg.sender
         );
         // trigger an event to say a food place was registered
-        emit foodPlaceRegistered(
-            s_foodPlaceId,
-            _name,
-            _latitude,
-            _longitude,
-            msg.sender
-        );
+        emit foodPlaceRegistered(s_foodPlaceId);
     }
 
     // this section describes the request of a food delivery service
@@ -130,13 +116,7 @@ contract PickUp {
             deliveryRequest(_id, _amountInGrams, s_requestId, false, msg.sender)
         );
         // trigger an event for the new delivery request
-        emit request(
-            _id,
-            _amountInGrams,
-            s_requestId,
-            false,
-            msg.sender
-        );
+        emit request(_id, _amountInGrams, s_requestId, false, msg.sender);
     }
 
     // this section describes owner only methods such as funding
@@ -164,6 +144,13 @@ contract PickUp {
     // create variables to use the donate contract's functions
     address temp;
     Donate private donate = new Donate(temp);
+    address[] private donators;
+    uint256[] private donations;
+
+    function fund(uint256 amount) public {
+        donations.push(amount);
+        donators.push(msg.sender);
+    }
 
     // onlyOwner function that approves a delivery request
     // the owner will fund the request from the donation pool
@@ -174,22 +161,37 @@ contract PickUp {
         uint256 withdrawn = 0;
         uint256 cost = 25;
         while (cost > 0) {
-            address donator = donate.getDonator(i);
-            uint amount = donate.getAddressToAmount(donator);
-            if (amount > 0) {
-                if (amount >= cost) {
-                    withdrawn = uint(donate.withdraw(donator, cost));
-                }
-                if (amount < cost) {
-                    withdrawn = uint(donate.withdraw(donator, amount));
-                }
-                cost -= withdrawn;
-                emit notifyDonator(donator, withdrawn, d.id);
+            // address donator = donate.getDonator(i);
+            // uint amount = donate.getAddressToAmount(donator);
+            // if (amount > 0) {
+            //     if (amount >= cost) {
+            //         withdrawn = uint(donate.withdraw(donator, cost));
+            //     }
+            //     if (amount < cost) {
+            //         withdrawn = uint(donate.withdraw(donator, amount));
+            //     }
+            //     cost -= withdrawn;
+            //     emit notifyDonator(donator, withdrawn, d.id);
+            // }
+            address donator = donators[i];
+            uint amount = donations[i];
+            if (amount >= cost) {
+                withdrawn = cost;
             }
+            if (amount < cost) {
+                withdrawn = amount;
+            }
+            cost -= withdrawn;
+            donations[i] -= withdrawn;
+            emit notifyDonator(donator, withdrawn, d.id);
             i++;
         }
         emit request(d.id, d.amountInGrams, d.requestId, true, d.requester);
         delete s_deliveryRequests[0];
+    }
+
+    function getDonation(uint256 index) public view returns (uint256) {
+        return donations[index];
     }
 
     // calculates the cost of a given delivery request

@@ -158,7 +158,7 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         return s_previousWinner;
     }
 
-    function getPlayer(uint256 index) public view returns (address) {
+    function getDonator(uint256 index) public view returns (address) {
         return s_donators[index];
     }
 
@@ -170,7 +170,7 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         return lotteryInterval;
     }
 
-    function getNumberOfPlayers() public view returns (uint256) {
+    function getNumberOfDonators() public view returns (uint256) {
         return s_donators.length;
     }
 

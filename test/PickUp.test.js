@@ -7,8 +7,18 @@ describe("PickUp contract", function () {
 
     before(async function () {
         accounts = await web3.eth.getAccounts();
-        [deployer, foodPlace1, foodPlace2, foodPlace3, foodPlace4, requester1, requester2] =
-            accounts;
+        [
+            deployer,
+            foodPlace1,
+            foodPlace2,
+            foodPlace3,
+            foodPlace4,
+            requester1,
+            requester2,
+            donator1,
+            donator2,
+            donator3
+        ] = accounts;
         pickup = await PickUp.new();
     });
 
@@ -27,44 +37,40 @@ describe("PickUp contract", function () {
         });
     });
 
-    // test the registering of a new food place
-    describe("Registering of a food place", async () => {
-        let result, numOfFoodPlaces;
+    // test the registering of multiple food places
+    describe("Registering of a single new food place", async () => {
+        let result1, numOfFoodPlaces;
         beforeEach(async () => {
-            result = await pickup.registerFoodPlace(
+            result1 = await pickup.registerFoodPlace(
                 "Baskin Robbins",
                 "42.51276",
                 "6.89210",
                 { from: foodPlace1 }
             );
-            numOfFoodPlaces = await pickup.s_foodPlaceId();
-        });
-        it("Registers a food place", async () => {
-            assert.equal(numOfFoodPlaces, 1);
-            const event = result.logs[0].args;
-            assert.equal(
-                event.id.toNumber(),
-                numOfFoodPlaces.toNumber(),
-                "the id is correct"
-            );
-            // SUCCESS: parameters are valid
-            assert.equal(event.name, "Baskin Robbins", "the name is correct");
-            assert.equal(event.latitude, "42.51276", "the latitude is correct");
-            assert.equal(event.longitude, "6.89210", "the logitude is correct");
-            assert.equal(event.owner, foodPlace1, "the owner is correct");
-            // FAILURE: parameters cannot be empty
-            await pickup.registerFoodPlace("", "42.51276", "6.89210", {
-                from: foodPlace1,
-            }).should.be.rejected;
-            await pickup.registerFoodPlace("Baskin Robbins", "", "6.89210", {
-                from: foodPlace1,
-            }).should.be.rejected;
-            await pickup.registerFoodPlace("Baskin Robbins", "42.51276", "", {
-                from: foodPlace1,
-            }).should.be.rejected;
-            await pickup.registerFoodPlace("", "", "", {
-                from: foodPlace1,
-            }).should.be.rejected;
+            numOfFoodPlaces = await pickup.foodPlaceId();
+            it("Resgisters multiple food places", async () => {
+                assert.equal(numOfFoodPlaces, 1);
+                const event1 = result1.logs[0].args;
+                assert.equal(event1.id.toNumber(), 1, "the id is correct");
+                // SUCCESS: parameters are valid
+                assert.equal(event1.name, "Baskin Robbins", "the name is correct");
+                assert.equal(event1.latitude, "42.51276", "the latitude is correct");
+                assert.equal(event1.longitude, "6.89210", "the logitude is correct");
+                assert.equal(event1.owner, foodPlace1, "the owner is correct");
+                // FAILURE: parameters invalid or empty
+                await pickup.registerFoodPlace("", "42.51276", "6.89210", {
+                    from: foodPlace1,
+                }).should.be.rejected;
+                await pickup.registerFoodPlace("Baskin Robbins", "", "6.89210", {
+                    from: foodPlace1,
+                }).should.be.rejected;
+                await pickup.registerFoodPlace("Baskin Robbins", "42.51276", "", {
+                    from: foodPlace1,
+                }).should.be.rejected;
+                await pickup.registerFoodPlace("", "", "", {
+                    from: foodPlace1,
+                }).should.be.rejected;
+            });
         });
     });
 
@@ -164,21 +170,27 @@ describe("PickUp contract", function () {
 
     // test the appending of a new delivery request
     describe("Funding of a delivery", async () => {
-        let result1, result2, result3;
+        let result, donationAmount;
         beforeEach(async () => {
-            result1 = await pickup.registerFoodPlace(
+            await pickup.registerFoodPlace(
                 "Baskin Robbins",
                 "42.51276",
                 "6.89210",
                 { from: foodPlace1 }
             );
-            result2 = await pickup.requestDelivery(1, 10000, { from: requester1 });
-            result3 = await pickup.fundDelivery({ from: deployer });
+            await pickup.fund(10, { from: donator1 });
+            await pickup.fund(10, { from: donator2 });
+            await pickup.fund(10, { from: donator3 });
+            await pickup.requestDelivery(1, 10000, { from: requester1 });
+            result = await pickup.fundDelivery({ from: deployer });
         });
         it("Deducts 25 USD from the donations", async () => {
-            // const event = result.logs[0].args;
-            // assert.equal(
-            // );
+            donationAmount = await pickup.getDonation(0);
+            assert.equal(donationAmount, 0);
+            donationAmount = await pickup.getDonation(1);
+            assert.equal(donationAmount, 0);
+            donationAmount = await pickup.getDonation(2);
+            assert.equal(donationAmount, 5);
         });
     });
 });
