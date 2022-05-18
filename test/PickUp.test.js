@@ -108,11 +108,7 @@ describe("PickUp contract", function () {
                 assert.equal(event3.id.toNumber(), 3, "the id is correct");
                 assert.equal(event4.id.toNumber(), 4, "the id is correct");
                 // SUCCESS: parameters are valid
-                assert.equal(
-                    event1.name,
-                    "Baskin Robbins",
-                    "the name is correct"
-                );
+                assert.equal(event1.name, "Baskin Robbins", "the name is correct");
                 assert.equal(event2.name, "Subway", "the name is correct");
                 assert.equal(event3.name, "McDonalds", "the name is correct");
                 assert.equal(event4.name, "Wingsters", "the name is correct");
@@ -158,40 +154,31 @@ describe("PickUp contract", function () {
             assert.equal(event.amountInGrams, 10000, "the amount is correct");
             assert.equal(event.requester, requester1, "the requester is correct");
             // FAILURE: parameters are invalid
-            await pickup.registerFoodPlace(0, 0, "6.89210", {
-                from: foodPlace1,
-            }).should.be.rejected;
-            await pickup.registerFoodPlace(-5, 500, "6.89210", {
-                from: foodPlace1,
-            }).should.be.rejected;
-            await pickup.registerFoodPlace(1, -5, "6.89210", {
-                from: foodPlace1,
-            }).should.be.rejected;
-            await pickup.registerFoodPlace(3, 0, "6.89210", {
-                from: foodPlace1,
-            }).should.be.rejected;
-            await pickup.registerFoodPlace(1, 101000, "6.89210", {
-                from: foodPlace1,
-            }).should.be.rejected;
+            await pickup.registerFoodPlace(0, 0, "6.89210", { from: foodPlace1, }).should.be.rejected;
+            await pickup.registerFoodPlace(-5, 500, "6.89210", { from: foodPlace1, }).should.be.rejected;
+            await pickup.registerFoodPlace(1, -5, "6.89210", { from: foodPlace1, }).should.be.rejected;
+            await pickup.registerFoodPlace(3, 0, "6.89210", { from: foodPlace1, }).should.be.rejected;
+            await pickup.registerFoodPlace(1, 101000, "6.89210", { from: foodPlace1, }).should.be.rejected;
         });
     });
 
     // test the appending of a new delivery request
     describe("Funding of a delivery", async () => {
-        let result;
+        let result1, result2, result3;
         beforeEach(async () => {
-            await pickup.registerFoodPlace(
+            result1 = await pickup.registerFoodPlace(
                 "Baskin Robbins",
                 "42.51276",
                 "6.89210",
                 { from: foodPlace1 }
             );
-            result = await pickup.fundDelivery();
+            result2 = await pickup.requestDelivery(1, 10000, { from: requester1 });
+            result3 = await pickup.fundDelivery({ from: deployer });
         });
         it("Deducts 25 USD from the donations", async () => {
-            const event = result.logs[0].args;
-            assert.equal(
-            );
+            // const event = result.logs[0].args;
+            // assert.equal(
+            // );
         });
     });
 });
