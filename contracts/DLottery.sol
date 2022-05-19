@@ -1,45 +1,24 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.7;
 
-import "./Donate.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
-import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
 import "hardhat/console.sol";
 
-error DLottery__UpkeepNotNeeded(
-    uint256 currentBalance,
-    uint256 numPlayers,
-    uint256 lotteryState
-);
-error DLottery__TransferFailed();
-error DLottery__SendMoreToEnterLottery();
-error DLottery__LotteryNotOpen();
+error Raffle__UpkeepNotNeeded(uint256 currentBalance, uint256 numPlayers, uint256 raffleState);
+error Raffle__TransferFailed();
+error Raffle__SendMoreToEnterRaffle();
+error Raffle__RaffleNotOpen();
 
 contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
-
-    event RequestedLotteryWinner(uint256 indexed requestId);
-    event LotteryEnter(address indexed donators);
-    event WinnerPicked(address indexed donator);
-    event newFoodieAdded(string food);
-
-    enum LotteryState {
-        PREVIOUS_WINNER,
-        NEW_WINNER
+    /* Type declarations */
+    enum RaffleState {
+        OPEN,
+        CALCULATING
     }
-    LotteryState public lotteryState;
-
-    struct Foodie {
-        string food;
-        address owner;
-    }
-
-    /* Variables */
-    string public name;
-    uint256 private lotteryInterval = 30 days; // 2592000 or 30*24*60*60
-
+    /* State variables */
     // Chainlink VRF Variables
     VRFCoordinatorV2Interface private immutable i_vrfCoordinator;
     uint64 private immutable i_subscriptionId;
@@ -49,67 +28,104 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     uint32 private constant NUM_WORDS = 1;
 
     // Lottery Variables
-    Foodie[] private foodies;
-    address[] private s_donators; // need to get donator data from donate
-    // address payable[] private s_donators;
+    uint256 private immutable i_interval;
     uint256 private s_lastTimeStamp;
-    address private s_previousWinner;
+    address private s_recentWinner;
     address private s_currentWinner;
-    LotteryState private s_lotteryState;
+    uint256 private i_entranceFee;
+    address payable[] private s_players;
+    Foodie[] private foodies;
+    RaffleState private s_raffleState;
 
+    /* Events */
+    event RequestedRaffleWinner(uint256 indexed requestId);
+    event RaffleEnter(address indexed player);
+    event WinnerPicked(address indexed player);
+    event newFoodieAdded(string food);
+
+    struct Foodie {
+        string food;
+        address owner;
+    }
+
+    /* Functions */
     constructor(
         address vrfCoordinatorV2,
         uint64 subscriptionId,
         bytes32 gasLane, // keyHash
+        uint256 interval,
+        uint256 entranceFee,
         uint32 callbackGasLimit
     ) VRFConsumerBaseV2(vrfCoordinatorV2) {
         i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinatorV2);
-        i_subscriptionId = subscriptionId;
         i_gasLane = gasLane;
-        i_callbackGasLimit = callbackGasLimit;
-        s_lotteryState = LotteryState.PREVIOUS_WINNER;
+        i_interval = interval;
+        i_subscriptionId = subscriptionId;
+        i_entranceFee = entranceFee;
+        s_raffleState = RaffleState.OPEN;
         s_lastTimeStamp = block.timestamp;
-        name = "DLottery";
+        i_callbackGasLimit = callbackGasLimit;
     }
 
-    // should only be called by the owner
     function addFoodie(string memory _food) public {
         foodies.push(Foodie(_food, msg.sender));
         emit newFoodieAdded(_food);
     }
 
-    address[] private donators;
-    uint256[] private donations;
-
-    function fund(uint256 amount) public {
-        donations.push(amount);
-        donators.push(msg.sender);
-        s_donators.push(msg.sender);
+    function enterRaffle() public payable {
+        // require(msg.value >= i_entranceFee, "Not enough value sent");
+        // require(s_raffleState == RaffleState.OPEN, "Raffle is not open");
+        if (msg.value < i_entranceFee) {
+            revert Raffle__SendMoreToEnterRaffle();
+        }
+        if (s_raffleState != RaffleState.OPEN) {
+            revert Raffle__RaffleNotOpen();
+        }
+        s_players.push(payable(msg.sender));
+        // Emit an event when we update a dynamic array or mapping
+        // Named events with the function name reversed
+        emit RaffleEnter(msg.sender);
     }
 
-    // executes off-chain to check if upkeep is necessary
+    /**
+     * @dev This is the function that the Chainlink Keeper nodes call
+     * they look for `upkeepNeeded` to return True.
+     * the following should be true for this to return true:
+     * 1. The time interval has passed between raffle runs.
+     * 2. The lottery is open.
+     * 3. The contract has ETH.
+     * 4. Implicity, your subscription is funded with LINK.
+     */
     function checkUpkeep(bytes memory /* checkData */)
         public
         view
         override
         returns (bool upkeepNeeded, bytes memory /* performData */) {
-        bool isOpen = LotteryState.PREVIOUS_WINNER == s_lotteryState;
-        bool timePassed = ((block.timestamp - s_lastTimeStamp) > lotteryInterval);
-        bool hasDonators = s_donators.length > 0;
-        upkeepNeeded = (isOpen && timePassed && hasDonators);
-        return (upkeepNeeded, "0x0");
+        bool isOpen = RaffleState.OPEN == s_raffleState;
+        bool timePassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
+        bool hasPlayers = s_players.length > 0;
+        bool hasBalance = address(this).balance > 0;
+        upkeepNeeded = (timePassed && isOpen && hasBalance && hasPlayers);
+        return (upkeepNeeded, "0x0"); // can we comment this out?
     }
 
-    function performUpkeep(bytes calldata /* performData */) external override {
+    /**
+     * @dev Once `checkUpkeep` is returning `true`, this function is called
+     * and it kicks off a Chainlink VRF call to get a random winner.
+     */
+    function performUpkeep(
+        bytes calldata /* performData */
+    ) external override {
         (bool upkeepNeeded, ) = checkUpkeep("");
+        // require(upkeepNeeded, "Upkeep not needed");
         if (!upkeepNeeded) {
-            revert DLottery__UpkeepNotNeeded(
+            revert Raffle__UpkeepNotNeeded(
                 address(this).balance,
-                s_donators.length,
-                uint256(s_lotteryState)
+                s_players.length,
+                uint256(s_raffleState)
             );
         }
-        s_lotteryState = LotteryState.NEW_WINNER;
+        s_raffleState = RaffleState.CALCULATING;
         uint256 requestId = i_vrfCoordinator.requestRandomWords(
             i_gasLane,
             i_subscriptionId,
@@ -117,42 +133,35 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
             i_callbackGasLimit,
             NUM_WORDS
         );
-        emit RequestedLotteryWinner(requestId);
+        emit RequestedRaffleWinner(requestId);
     }
 
+    /**
+     * @dev This is the function that Chainlink VRF node
+     * calls to send the money to the random winner.
+     */
     function fulfillRandomWords(
         uint256, /* requestId */
         uint256[] memory randomWords
     ) internal override {
-        s_previousWinner = s_currentWinner;
-        // select a random winner
-        uint256 indexOfWinner = randomWords[0] % s_donators.length;
-        address winner = s_donators[indexOfWinner];
-        s_currentWinner = winner;
-        // reset the lottery
-        s_donators = new address[](0);
-        s_lotteryState = LotteryState.PREVIOUS_WINNER;
+        uint256 indexOfWinner = randomWords[0] % s_players.length;
+        address payable recentWinner = s_players[indexOfWinner];
+        s_recentWinner = recentWinner;
+        s_players = new address payable[](0);
+        s_raffleState = RaffleState.OPEN;
         s_lastTimeStamp = block.timestamp;
-        // the selected winner gets awarded free food!!!
-        indexOfWinner = randomWords[0] % foodies.length;
-        Foodie memory foodie = foodies[indexOfWinner];
-        foodie.owner = winner;
-        bool success = (foodie.owner == winner);
+        (bool success, ) = recentWinner.call{value: address(this).balance}("");
+        // require(success, "Transfer failed");
         if (!success) {
-            revert DLottery__TransferFailed();
+            revert Raffle__TransferFailed();
         }
-        emit WinnerPicked(winner);
-    }
-
-    /**Setter Functions */
-    function setInterval(uint256 _interval) public {
-        lotteryInterval = _interval;
+        emit WinnerPicked(recentWinner);
     }
 
     /** Getter Functions */
 
-    function getLotteryState() public view returns (LotteryState) {
-        return s_lotteryState;
+    function getRaffleState() public view returns (RaffleState) {
+        return s_raffleState;
     }
 
     function getNumWords() public pure returns (uint256) {
@@ -163,16 +172,12 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         return REQUEST_CONFIRMATIONS;
     }
 
-    function getCurrentWinner() public view returns (address) {
-        return s_currentWinner;
+    function getRecentWinner() public view returns (address) {
+        return s_recentWinner;
     }
 
-    function getPreviousWinner() public view returns (address) {
-        return s_previousWinner;
-    }
-
-    function getDonator(uint256 index) public view returns (address) {
-        return s_donators[index];
+    function getPlayer(uint256 index) public view returns (address) {
+        return s_players[index];
     }
 
     function getLastTimeStamp() public view returns (uint256) {
@@ -180,14 +185,14 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     }
 
     function getInterval() public view returns (uint256) {
-        return lotteryInterval;
+        return i_interval;
     }
 
-    function getNumberOfDonators() public view returns (uint256) {
-        return s_donators.length;
+    function getEntranceFee() public view returns (uint256) {
+        return i_entranceFee;
     }
 
-    function getNumberOfFoodies() public view returns (uint256) {
-        return foodies.length;
+    function getNumberOfPlayers() public view returns (uint256) {
+        return s_players.length;
     }
 }
