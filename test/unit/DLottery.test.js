@@ -6,10 +6,10 @@ const {
 } = require("../../helper-hardhat-config");
 
 !developmentChains.includes(network.name) ? describe.skip : describe("Raffle Unit Tests", async function () {
-    let raffle,
-        raffleContract,
+    let dlottery,
+        dlotteryContract,
         vrfCoordinatorV2Mock,
-        raffleEntranceFee,
+        dlotteryEntranceFee,
         interval,
         player; // , deployer
 
@@ -21,20 +21,20 @@ const {
         vrfCoordinatorV2Mock = await ethers.getContract(
             "VRFCoordinatorV2Mock"
         );
-        raffleContract = await ethers.getContract("DLottery");
-        raffle = raffleContract.connect(player);
-        raffleEntranceFee = await raffle.getEntranceFee();
-        interval = await raffle.getInterval();
+        dlotteryContract = await ethers.getContract("DLottery");
+        dlottery = dlotteryContract.connect(player);
+        dlotteryEntranceFee = await dlottery.getEntranceFee();
+        interval = await dlottery.getInterval();
     });
 
     describe("constructor", () => {
         it("intitiallizes dlottery correctly", async () => {
             // Ideally, we'd separate these out so that only 1 assert per "it" block
             // And ideally, we'd make this check everything
-            const raffleState = (
-                await raffle.getRaffleState()
+            const lotteryState = (
+                await dlottery.getRaffleState()
             ).toString();
-            assert.equal(raffleState, "0");
+            assert.equal(lotteryState, "0");
             assert.equal(
                 interval.toString(),
                 networkConfig[network.config.chainId][
@@ -46,11 +46,11 @@ const {
     describe("Adding of multiple foodie items", async () => {
         let numOfFoodieItems;
         beforeEach(async () => {
-            await raffle.addFoodie("Sooubway: Veggie Pattie");
-            await raffle.addFoodie("Sooubway: Meatball");
-            await raffle.addFoodie("Sooubway: Steak and Cheeks");
-            await raffle.addFoodie("Sooubway: Smoked Turkey");
-            numOfFoodieItems = await raffle.getNumberOfFoodies();
+            await dlottery.addFoodie("Sooubway: Veggie Pattie");
+            await dlottery.addFoodie("Sooubway: Meatball");
+            await dlottery.addFoodie("Sooubway: Steak and Cheeks");
+            await dlottery.addFoodie("Sooubway: Smoked Turkey");
+            numOfFoodieItems = await dlottery.getNumberOfFoodies();
         });
         it("Adds several foodies to the foodie array", async () => {
             assert.equal(numOfFoodieItems, 4);
@@ -58,22 +58,22 @@ const {
     });
     describe("enterLottery", () => {
         it("reverts when you don't pay enough", async () => {
-            await expect(raffle.enterRaffle()).to.be.revertedWith(
+            await expect(dlottery.enterRaffle()).to.be.revertedWith(
                 "Raffle__SendMoreToEnterRaffle"
             );
         });
         it("records player when they enter", async () => {
-            await raffle.enterRaffle({ value: raffleEntranceFee });
-            const contractPlayer = await raffle.getPlayer(0);
+            await dlottery.enterRaffle({ value: dlotteryEntranceFee });
+            const contractPlayer = await dlottery.getPlayer(0);
             assert.equal(player.address, contractPlayer);
         });
         it("emits event on enter", async () => {
             await expect(
-                raffle.enterRaffle({ value: raffleEntranceFee })
-            ).to.emit(raffle, "RaffleEnter");
+                dlottery.enterRaffle({ value: dlotteryEntranceFee })
+            ).to.emit(dlottery, "RaffleEnter");
         });
         it("doesn't allow entrance when raffle is calculating", async () => {
-            await raffle.enterRaffle({ value: raffleEntranceFee });
+            await dlottery.enterRaffle({ value: dlotteryEntranceFee });
             await network.provider.send("evm_increaseTime", [
                 interval.toNumber() + 1,
             ]);
@@ -82,9 +82,9 @@ const {
                 params: [],
             });
             // we pretend to be a keeper for a second
-            await raffle.performUpkeep([]);
+            await dlottery.performUpkeep([]);
             await expect(
-                raffle.enterRaffle({ value: raffleEntranceFee })
+                dlottery.enterRaffle({ value: dlotteryEntranceFee })
             ).to.be.revertedWith("Raffle__RaffleNotOpen");
         });
     });
@@ -97,13 +97,13 @@ const {
                 method: "evm_mine",
                 params: [],
             });
-            const { upkeepNeeded } = await raffle.callStatic.checkUpkeep(
+            const { upkeepNeeded } = await dlottery.callStatic.checkUpkeep(
                 "0x"
             );
             assert(!upkeepNeeded);
         });
         it("returns false if raffle isn't open", async () => {
-            await raffle.enterRaffle({ value: raffleEntranceFee });
+            await dlottery.enterRaffle({ value: dlotteryEntranceFee });
             await network.provider.send("evm_increaseTime", [
                 interval.toNumber() + 1,
             ]);
@@ -111,18 +111,18 @@ const {
                 method: "evm_mine",
                 params: [],
             });
-            await raffle.performUpkeep([]);
-            const raffleState = await raffle.getRaffleState();
-            const { upkeepNeeded } = await raffle.callStatic.checkUpkeep(
+            await dlottery.performUpkeep([]);
+            const lotteryState = await dlottery.getRaffleState();
+            const { upkeepNeeded } = await dlottery.callStatic.checkUpkeep(
                 "0x"
             );
             assert.equal(
-                raffleState.toString() == "1",
+                lotteryState.toString() == "1",
                 upkeepNeeded == false
             );
         });
         it("returns false if enough time hasn't passed", async () => {
-            await raffle.enterRaffle({ value: raffleEntranceFee });
+            await dlottery.enterRaffle({ value: dlotteryEntranceFee });
             await network.provider.send("evm_increaseTime", [
                 interval.toNumber() - 1,
             ]);
@@ -130,13 +130,13 @@ const {
                 method: "evm_mine",
                 params: [],
             });
-            const { upkeepNeeded } = await raffle.callStatic.checkUpkeep(
+            const { upkeepNeeded } = await dlottery.callStatic.checkUpkeep(
                 "0x"
             );
             assert(!upkeepNeeded);
         });
         it("returns true if enough time has passed, has players, eth, and is open", async () => {
-            await raffle.enterRaffle({ value: raffleEntranceFee });
+            await dlottery.enterRaffle({ value: dlotteryEntranceFee });
             await network.provider.send("evm_increaseTime", [
                 interval.toNumber() + 1,
             ]);
@@ -144,7 +144,7 @@ const {
                 method: "evm_mine",
                 params: [],
             });
-            const { upkeepNeeded } = await raffle.callStatic.checkUpkeep(
+            const { upkeepNeeded } = await dlottery.callStatic.checkUpkeep(
                 "0x"
             );
             assert(upkeepNeeded);
@@ -153,7 +153,7 @@ const {
 
     describe("performUpkeep", () => {
         it("can only run if checkupkeep is true", async () => {
-            await raffle.enterRaffle({ value: raffleEntranceFee });
+            await dlottery.enterRaffle({ value: dlotteryEntranceFee });
             await network.provider.send("evm_increaseTime", [
                 interval.toNumber() + 1,
             ]);
@@ -161,17 +161,17 @@ const {
                 method: "evm_mine",
                 params: [],
             });
-            const tx = await raffle.performUpkeep("0x");
+            const tx = await dlottery.performUpkeep("0x");
             assert(tx);
         });
         it("reverts if checkup is false", async () => {
-            await expect(raffle.performUpkeep("0x")).to.be.revertedWith(
+            await expect(dlottery.performUpkeep("0x")).to.be.revertedWith(
                 "Raffle__UpkeepNotNeeded"
             );
         });
         it("updates the raffle state and emits a requestId", async () => {
             // Too many asserts in this test!
-            await raffle.enterRaffle({ value: raffleEntranceFee });
+            await dlottery.enterRaffle({ value: dlotteryEntranceFee });
             await network.provider.send("evm_increaseTime", [
                 interval.toNumber() + 1,
             ]);
@@ -179,9 +179,9 @@ const {
                 method: "evm_mine",
                 params: [],
             });
-            const txResponse = await raffle.performUpkeep("0x");
+            const txResponse = await dlottery.performUpkeep("0x");
             const txReceipt = await txResponse.wait(1);
-            const raffleState = await raffle.getRaffleState();
+            const raffleState = await dlottery.getRaffleState();
             const requestId = txReceipt.events[1].args.requestId;
             assert(requestId.toNumber() > 0);
             assert(raffleState == 1);
@@ -189,7 +189,7 @@ const {
     });
     describe("fulfillRandomWords", () => {
         beforeEach(async () => {
-            await raffle.enterRaffle({ value: raffleEntranceFee });
+            await dlottery.enterRaffle({ value: dlotteryEntranceFee });
             await network.provider.send("evm_increaseTime", [
                 interval.toNumber() + 1,
             ]);
@@ -200,10 +200,10 @@ const {
         });
         it("can only be called after performupkeep", async () => {
             await expect(
-                vrfCoordinatorV2Mock.fulfillRandomWords(0, raffle.address)
+                vrfCoordinatorV2Mock.fulfillRandomWords(0, dlottery.address)
             ).to.be.revertedWith("nonexistent request");
             await expect(
-                vrfCoordinatorV2Mock.fulfillRandomWords(1, raffle.address)
+                vrfCoordinatorV2Mock.fulfillRandomWords(1, dlottery.address)
             ).to.be.revertedWith("nonexistent request");
         });
         // This test is too big...
@@ -215,14 +215,14 @@ const {
                 i < startingIndex + additionalEntrances;
                 i++
             ) {
-                raffle = raffleContract.connect(accounts[i]);
-                await raffle.enterRaffle({ value: raffleEntranceFee });
+                dlottery = dlotteryContract.connect(accounts[i]);
+                await dlottery.enterRaffle({ value: dlotteryEntranceFee });
             }
-            const startingTimeStamp = await raffle.getLastTimeStamp();
+            const startingTimeStamp = await dlottery.getLastTimeStamp();
 
             // This will be more important for our staging tests...
             await new Promise(async (resolve, reject) => {
-                raffle.once("WinnerPicked", async () => {
+                dlottery.once("WinnerPicked", async () => {
                     console.log("WinnerPicked event fired!");
                     // assert throws an error if it fails, so we need to wrap
                     // it in a try/catch so that the promise returns event
@@ -230,13 +230,13 @@ const {
                     try {
                         // Now lets get the ending values...
                         const recentWinner =
-                            await raffle.getRecentWinner();
-                        const raffleState = await raffle.getRaffleState();
+                            await dlottery.getRecentWinner();
+                        const raffleState = await dlottery.getRaffleState();
                         const winnerBalance =
                             await accounts[2].getBalance();
                         const endingTimeStamp =
-                            await raffle.getLastTimeStamp();
-                        await expect(raffle.getPlayer(0)).to.be.reverted;
+                            await dlottery.getLastTimeStamp();
+                        await expect(dlottery.getPlayer(0)).to.be.reverted;
                         assert.equal(
                             recentWinner.toString(),
                             accounts[2].address
@@ -246,9 +246,9 @@ const {
                             winnerBalance.toString(),
                             startingBalance
                                 .add(
-                                    raffleEntranceFee
+                                    dlotteryEntranceFee
                                         .mul(additionalEntrances)
-                                        .add(raffleEntranceFee)
+                                        .add(dlotteryEntranceFee)
                                 )
                                 .toString()
                         );
@@ -259,12 +259,12 @@ const {
                     }
                 });
 
-                const tx = await raffle.performUpkeep("0x");
+                const tx = await dlottery.performUpkeep("0x");
                 const txReceipt = await tx.wait(1);
                 const startingBalance = await accounts[2].getBalance();
                 await vrfCoordinatorV2Mock.fulfillRandomWords(
                     txReceipt.events[1].args.requestId,
-                    raffle.address
+                    dlottery.address
                 );
             });
         });
