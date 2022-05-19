@@ -8,6 +8,12 @@ import "hardhat/console.sol";
 
 contract Donate is Ownable {
 
+    struct DonatorData {
+        uint256 amount;
+        string name;
+        string latitude;
+        string longitude;
+    }
     uint256 public constant MINIMUM_USD = 10 * 10**18;
     address payable private immutable i_owner;
     uint256 public totalDonators;
@@ -15,9 +21,10 @@ contract Donate is Ownable {
     uint256 public entries;
     address[] private donators;
     mapping(address => bool) private addressToRegistered;
-    mapping(address => uint256) private addressToAmount;
+    mapping(address => DonatorData) private addressToDonatorData;
     mapping(uint256 => address) private idToAddress;
     AggregatorV3Interface private s_priceFeed;
+    event DonatorRegistered(string name);
     event DonationAccepted(address indexed donor, uint256 amount);
 
     constructor(address priceFeed) {
@@ -36,26 +43,38 @@ contract Donate is Ownable {
     function getConversionRate(uint256 ethAmount) public view returns (uint256) {
         uint256 ethPrice = getPrice(s_priceFeed);
         uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1000000000000000000;
-        console.log("ETH Price: ", ethAmountInUsd / 1000000000000000000);
         return ethAmountInUsd;
     }
 
+    function divider(uint numerator, uint denominator, uint precision) internal pure returns(uint) {
+        return numerator*(uint(10)**uint(precision))/denominator;
+    }
+
     function getUsdAmountInEth(uint256 usdAmount) public view returns (uint256) {
+        usdAmount = usdAmount * (10 ** 18);
         uint256 ethPrice = getPrice(s_priceFeed);
-        uint256 usdAmountInEth = (usdAmount / ethPrice) * 1000000000000000000;
+        uint256 usdAmountInEth = divider(usdAmount, ethPrice, 18);
         return usdAmountInEth;
+    }
+
+    function register(string memory name, string memory longitude, string memory latitude) public {
+        require(!addressToRegistered[msg.sender], "Already registered");
+        require(bytes(name).length > 0, "Invalid. Name cannot be empty");
+        require(bytes(longitude).length > 0, "Invalid. Longitude cannot be empty");
+        require(bytes(latitude).length > 0, "Invalid. Latitude cannot be empty");
+        addressToRegistered[msg.sender] = true;
+        DonatorData memory data = DonatorData(0, name, longitude, latitude);
+        addressToDonatorData[msg.sender] = data;
+        donators.push(msg.sender);
+        totalDonators++;
+        emit DonatorRegistered(name);
     }
 
     function donate() public payable {
         require(getConversionRate(msg.value) >= MINIMUM_USD, "You need to spend more ETH!");
-        addressToAmount[msg.sender] += msg.value;
+        addressToDonatorData[msg.sender].amount += msg.value;
         totalDonations += msg.value;
         idToAddress[++entries] = msg.sender;
-        if (!addressToRegistered[msg.sender]) {
-            donators.push(msg.sender);
-            addressToRegistered[msg.sender] = true;
-            totalDonators++;
-        }
         emit DonationAccepted(msg.sender, msg.value);
     }
 
@@ -64,7 +83,11 @@ contract Donate is Ownable {
     }
 
     function getAddressToAmount(address donator) public view returns (uint256) {
-        return addressToAmount[donator];
+        return addressToDonatorData[donator].amount;
+    }
+
+    function getAddressToDonatorData(address donator) public view returns (string memory, string memory, string memory) {
+        return (addressToDonatorData[donator].name, addressToDonatorData[donator].latitude, addressToDonatorData[donator].longitude);
     }
 
     function getIdToAddress(uint256 id) public view returns (address) {
@@ -72,10 +95,9 @@ contract Donate is Ownable {
     }
 
     function withdraw(address donator, uint256 amount) public payable onlyOwner returns(uint256) {
-        require(getConversionRate(addressToAmount[donator]) >= amount, "Can't withdraw more than donated amount!");
-        uint256 eamount = getUsdAmountInEth(amount);
-        addressToAmount[donator] = addressToAmount[donator] - eamount;
-        payable(i_owner).transfer(eamount);
+        require(addressToDonatorData[donator].amount >= amount, "Can't withdraw more than donated amount!");
+        addressToDonatorData[donator].amount = addressToDonatorData[donator].amount - amount;
+        payable(i_owner).transfer(amount);
         return amount;
     }
 }
