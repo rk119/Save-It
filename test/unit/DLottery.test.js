@@ -5,7 +5,7 @@ const {
     networkConfig,
 } = require("../../helper-hardhat-config");
 
-!developmentChains.includes(network.name) ? describe.skip : describe("Raffle Unit Tests", async function () {
+!developmentChains.includes(network.name) ? describe.skip : describe("DLottery Unit Tests", async function () {
     let dlottery,
         dlotteryContract,
         vrfCoordinatorV2Mock,
@@ -32,7 +32,7 @@ const {
             // Ideally, we'd separate these out so that only 1 assert per "it" block
             // And ideally, we'd make this check everything
             const lotteryState = (
-                await dlottery.getRaffleState()
+                await dlottery.getLotteryState()
             ).toString();
             assert.equal(lotteryState, "0");
             assert.equal(
@@ -58,22 +58,22 @@ const {
     });
     describe("enterLottery", () => {
         it("reverts when you don't pay enough", async () => {
-            await expect(dlottery.enterRaffle()).to.be.revertedWith(
-                "Raffle__SendMoreToEnterRaffle"
+            await expect(dlottery.enterLottery()).to.be.revertedWith(
+                "Lottery__SendMoreToEnterLottery"
             );
         });
         it("records player when they enter", async () => {
-            await dlottery.enterRaffle({ value: dlotteryEntranceFee });
-            const contractPlayer = await dlottery.getPlayer(0);
+            await dlottery.enterLottery({ value: dlotteryEntranceFee });
+            const contractPlayer = await dlottery.getDonator(0);
             assert.equal(player.address, contractPlayer);
         });
         it("emits event on enter", async () => {
             await expect(
-                dlottery.enterRaffle({ value: dlotteryEntranceFee })
-            ).to.emit(dlottery, "RaffleEnter");
+                dlottery.enterLottery({ value: dlotteryEntranceFee })
+            ).to.emit(dlottery, "LotteryEnter");
         });
-        it("doesn't allow entrance when raffle is calculating", async () => {
-            await dlottery.enterRaffle({ value: dlotteryEntranceFee });
+        it("doesn't allow entrance when lottery is calculating", async () => {
+            await dlottery.enterLottery({ value: dlotteryEntranceFee });
             await network.provider.send("evm_increaseTime", [
                 interval.toNumber() + 1,
             ]);
@@ -84,8 +84,8 @@ const {
             // we pretend to be a keeper for a second
             await dlottery.performUpkeep([]);
             await expect(
-                dlottery.enterRaffle({ value: dlotteryEntranceFee })
-            ).to.be.revertedWith("Raffle__RaffleNotOpen");
+                dlottery.enterLottery({ value: dlotteryEntranceFee })
+            ).to.be.revertedWith("Lottery__LotteryNotOpen");
         });
     });
     describe("checkUpkeep", () => {
@@ -102,8 +102,8 @@ const {
             );
             assert(!upkeepNeeded);
         });
-        it("returns false if raffle isn't open", async () => {
-            await dlottery.enterRaffle({ value: dlotteryEntranceFee });
+        it("returns false if lottery isn't open", async () => {
+            await dlottery.enterLottery({ value: dlotteryEntranceFee });
             await network.provider.send("evm_increaseTime", [
                 interval.toNumber() + 1,
             ]);
@@ -112,7 +112,7 @@ const {
                 params: [],
             });
             await dlottery.performUpkeep([]);
-            const lotteryState = await dlottery.getRaffleState();
+            const lotteryState = await dlottery.getLotteryState();
             const { upkeepNeeded } = await dlottery.callStatic.checkUpkeep(
                 "0x"
             );
@@ -122,7 +122,7 @@ const {
             );
         });
         it("returns false if enough time hasn't passed", async () => {
-            await dlottery.enterRaffle({ value: dlotteryEntranceFee });
+            await dlottery.enterLottery({ value: dlotteryEntranceFee });
             await network.provider.send("evm_increaseTime", [
                 interval.toNumber() - 1,
             ]);
@@ -136,7 +136,7 @@ const {
             assert(!upkeepNeeded);
         });
         it("returns true if enough time has passed, has players, eth, and is open", async () => {
-            await dlottery.enterRaffle({ value: dlotteryEntranceFee });
+            await dlottery.enterLottery({ value: dlotteryEntranceFee });
             await network.provider.send("evm_increaseTime", [
                 interval.toNumber() + 1,
             ]);
@@ -153,7 +153,7 @@ const {
 
     describe("performUpkeep", () => {
         it("can only run if checkupkeep is true", async () => {
-            await dlottery.enterRaffle({ value: dlotteryEntranceFee });
+            await dlottery.enterLottery({ value: dlotteryEntranceFee });
             await network.provider.send("evm_increaseTime", [
                 interval.toNumber() + 1,
             ]);
@@ -166,12 +166,12 @@ const {
         });
         it("reverts if checkup is false", async () => {
             await expect(dlottery.performUpkeep("0x")).to.be.revertedWith(
-                "Raffle__UpkeepNotNeeded"
+                "Lottery__UpkeepNotNeeded"
             );
         });
-        it("updates the raffle state and emits a requestId", async () => {
+        it("updates the lottery state and emits a requestId", async () => {
             // Too many asserts in this test!
-            await dlottery.enterRaffle({ value: dlotteryEntranceFee });
+            await dlottery.enterLottery({ value: dlotteryEntranceFee });
             await network.provider.send("evm_increaseTime", [
                 interval.toNumber() + 1,
             ]);
@@ -181,15 +181,15 @@ const {
             });
             const txResponse = await dlottery.performUpkeep("0x");
             const txReceipt = await txResponse.wait(1);
-            const raffleState = await dlottery.getRaffleState();
+            const LotteryState = await dlottery.getLotteryState();
             const requestId = txReceipt.events[1].args.requestId;
             assert(requestId.toNumber() > 0);
-            assert(raffleState == 1);
+            assert(LotteryState == 1);
         });
     });
     describe("fulfillRandomWords", () => {
         beforeEach(async () => {
-            await dlottery.enterRaffle({ value: dlotteryEntranceFee });
+            await dlottery.enterLottery({ value: dlotteryEntranceFee });
             await network.provider.send("evm_increaseTime", [
                 interval.toNumber() + 1,
             ]);
@@ -216,7 +216,7 @@ const {
                 i++
             ) {
                 dlottery = dlotteryContract.connect(accounts[i]);
-                await dlottery.enterRaffle({ value: dlotteryEntranceFee });
+                await dlottery.enterLottery({ value: dlotteryEntranceFee });
             }
             const startingTimeStamp = await dlottery.getLastTimeStamp();
 
@@ -229,19 +229,18 @@ const {
                     // if it fails.
                     try {
                         // Now lets get the ending values...
-                        const recentWinner =
-                            await dlottery.getRecentWinner();
-                        const raffleState = await dlottery.getRaffleState();
+                        const recentWinner = await dlottery.getRecentWinner();
+                        const LotteryState = await dlottery.getLotteryState();
                         const winnerBalance =
                             await accounts[2].getBalance();
                         const endingTimeStamp =
                             await dlottery.getLastTimeStamp();
-                        await expect(dlottery.getPlayer(0)).to.be.reverted;
+                        await expect(dlottery.getDonator(0)).to.be.reverted;
                         assert.equal(
                             recentWinner.toString(),
                             accounts[2].address
                         );
-                        assert.equal(raffleState, 0);
+                        assert.equal(LotteryState, 0);
                         assert.equal(
                             winnerBalance.toString(),
                             startingBalance
