@@ -1,3 +1,6 @@
+const { deployments, ethers, network } = require("hardhat");
+const { assert, AssertionError } = require("chai");
+
 const DLottery = artifacts.require("DLottery.sol");
 const VRFCoordinatorV2Mock = artifacts.require("VRFCoordinatorV2Mock.sol");
 
