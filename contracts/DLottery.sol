@@ -21,8 +21,8 @@ error DLottery__LotteryNotOpen();
 contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
 
     event RequestedLotteryWinner(uint256 indexed requestId);
-    event LotteryEnter(address indexed player);
-    event WinnerPicked(address indexed player);
+    event LotteryEnter(address indexed donator);
+    event WinnerPicked(address indexed donator);
     event newFoodieAdded(string food);
 
     enum LotteryState {
@@ -78,6 +78,15 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         emit newFoodieAdded(_food);
     }
 
+    address[] private donators;
+    uint256[] private donations;
+
+    function fund(uint256 amount) public {
+        donations.push(amount);
+        donators.push(msg.sender);
+        s_donators.push(msg.sender);
+    }
+
     // executes off-chain to check if upkeep is necessary
     function checkUpkeep(bytes memory /* checkData */)
         public
@@ -87,8 +96,7 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         bool isOpen = LotteryState.PREVIOUS_WINNER == s_lotteryState;
         bool timePassed = ((block.timestamp - s_lastTimeStamp) > lotteryInterval);
         bool hasDonators = s_donators.length > 0;
-        bool hasDonations = address(this).balance > 0;
-        upkeepNeeded = (isOpen && timePassed && hasDonators && hasDonations);
+        upkeepNeeded = (isOpen && timePassed && hasDonators);
         return (upkeepNeeded, "0x0");
     }
 
@@ -134,6 +142,11 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
             revert DLottery__TransferFailed();
         }
         emit WinnerPicked(winner);
+    }
+
+    /**Setter Functions */
+    function setInterval(uint256 _interval) public {
+        lotteryInterval = _interval;
     }
 
     /** Getter Functions */
