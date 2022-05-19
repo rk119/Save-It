@@ -35,6 +35,17 @@ describe("Donate contract", function () {
             assert.equal(totalDonations, 0)
             assert.equal(entries, 0)
         })
+
+        it('registers a donator', async () => {
+            let result = await donate.register('RifRof', '25.197197', '55.274376', { from: donator1 })
+            const event = result.logs[0].args
+            assert.equal(result.logs[0].event, 'DonatorRegistered')
+            assert.equal(event.amount, 0)
+            assert.equal(event.name, 'RifRof')
+            assert.equal(event.latitude, '25.197197')
+            assert.equal(event.longitude, '55.274376')
+        })
+
     })
 
     describe('donating', async () => {
@@ -101,6 +112,7 @@ describe("Donate contract", function () {
         it('different address makes another donation', async () => {
             let oldBalance2 = await web3.eth.getBalance(donator2)
             oldBalance2 = new web3.utils.BN(oldBalance2)
+            await donate.register('Moses', '21.191135', '57.274876', { from: donator2})
             let secondDonation = web3.utils.toWei('0.008', 'Ether')
             let result2 = await donate.donate({ from: donator2, value: secondDonation })
             secondDonation = new web3.utils.BN(secondDonation)
@@ -135,36 +147,33 @@ describe("Donate contract", function () {
         it('check if eth is returned when usd is passed', async () => {
             let usd = await donate.getConversionRate(web3.utils.toWei('0.1', 'Ether')) 
             usd = new web3.utils.BN(usd)
-            console.log(usd.toString())
-            let eth = await donate.getUsdAmountInEth(usd)
-            eth = new web3.utils.BN(web3.utils.toWei(eth, 'Ether'))
-            console.log(eth.toString())
-            // assert.equal(eth.toString(), web3.utils.toWei('0.1', 'Ether'), 'correctly converts usd to eth')
+            let eth = await donate.getUsdAmountInEth(usd / (10 ** 18))
+            eth = new web3.utils.BN(eth)
+            assert.equal(eth.toString(), web3.utils.toWei('0.1', 'Ether'), 'correctly converts usd to eth')
         })
 
-        xit('owner can withdraw', async () => {
+        it('owner can withdraw', async () => {
             let oldContractBalance = await web3.eth.getBalance(donate.address)
             oldContractBalance = new web3.utils.BN(oldContractBalance)
-            // let oldDeployerBalance = await web3.eth.getBalance(deployer)
-            // oldDeployerBalance = new web3.utils.BN(oldDeployerBalance)
-            let amount = 2
+            let oldDeployerBalance = await web3.eth.getBalance(deployer)
+            oldDeployerBalance = new web3.utils.BN(oldDeployerBalance)
+            let amount = await donate.getUsdAmountInEth(2)
             await donate.withdraw(donator2, amount, { from: deployer })
-            amount = new web3.utils.BN(donate.getUsdAmountInEth(amount))
             let newContractBalance = await web3.eth.getBalance(donate.address)
             newContractBalance = new web3.utils.BN(newContractBalance)
-            // let newDeployerBalance = await web3.eth.getBalance(deployer)
-            // newDeployerBalance = new web3.utils.BN(newDeployerBalance)
+            let newDeployerBalance = await web3.eth.getBalance(deployer)
+            newDeployerBalance = new web3.utils.BN(newDeployerBalance)
             const exepectedContractBalance = oldContractBalance.sub(amount)
-            // const exepectedDeployerBalance = oldDeployerBalance.add(amount)
+            const exepectedDeployerBalance = oldDeployerBalance.add(amount)
             assert.equal(Math.round(web3.utils.fromWei(newContractBalance, 'ether')), Math.round(web3.utils.fromWei(exepectedContractBalance, 'ether')))
-            // assert.equal(Math.round(web3.utils.fromWei(newDeployerBalance, 'ether')), Math.round(web3.utils.fromWei(exepectedDeployerBalance, 'ether')))
+            assert.equal(Math.round(web3.utils.fromWei(newDeployerBalance, 'ether')), Math.round(web3.utils.fromWei(exepectedDeployerBalance, 'ether')))
         })
 
-        xit('fails if caller is not owner', async () => {
+        it('fails if caller is not owner', async () => {
             await donate.withdraw(donator2, web3.utils.toWei('0.0001', 'Ether'), { from: donator1 }).should.be.rejected
         })
 
-        xit('fails if amount is greater than donated balance', async () => {
+        it('fails if amount is greater than donated balance', async () => {
             await donate.withdraw(donator2, web3.utils.toWei('0.2', 'Ether'), { from: deployer }).should.be.rejected
         })
     })
