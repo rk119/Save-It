@@ -21,7 +21,7 @@ error DLottery__LotteryNotOpen();
 contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
 
     event RequestedLotteryWinner(uint256 indexed requestId);
-    event LotteryEnter(address indexed donator);
+    event LotteryEnter(address indexed donators);
     event WinnerPicked(address indexed donator);
     event newFoodieAdded(string food);
 

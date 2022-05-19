@@ -1,22 +1,27 @@
 const { deployments, ethers, network } = require("hardhat");
-const { assert, AssertionError } = require("chai");
+const { assert, expect, AssertionError } = require("chai");
+
+require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-ethers");
 
 const DLottery = artifacts.require("DLottery.sol");
 const VRFCoordinatorV2Mock = artifacts.require("VRFCoordinatorV2Mock.sol");
 
 require("chai").use(require("chai-as-promised")).should();
 
-describe("DLottery contract", function () {
+describe("DLottery contract", async function () {
     let accounts, dlottery, interval, vrfCoordinatorV2Mock;
 
     before(async function () {
         accounts = await web3.eth.getAccounts();
         [deployer, donator1, donator2, donator3, donator4] = accounts;
         await deployments.fixture(["mocks", "dlottery"]);
-        vrfCoordinatorV2Mock = await VRFCoordinatorV2Mock.new(
-            "500000",
-            "500000"
-        );
+        const vrfCoordinatorV2MockFactory = await ethers.getContractFactory(
+            'src/v0.8/mocks/VRFCoordinatorV2Mock.sol:VRFCoordinatorV2Mock',
+            accounts[0],
+        )
+        vrfCoordinatorV2Mock = await VRFCoordinatorV2Mock.new(500000,500000);
+        // vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
         dlottery = await DLottery.new(
             "0x6168499c0cFfCaCD319c818142124B7A15E857ab",
             "3499",
