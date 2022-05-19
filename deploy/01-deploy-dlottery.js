@@ -8,7 +8,7 @@ const { verify } = require("../utils/verify")
 
 const FUND_AMOUNT = "1000000000000000000000"
 
-module.exports = async ({ getNamedAccounts, deployments }) => {
+module.exports = async () => {
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
     const chainId = network.config.chainId
@@ -33,7 +33,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         : VERIFICATION_BLOCK_CONFIRMATIONS
 
     log("----------------------------------------------------")
-    const arguments = [
+    const args = [
         vrfCoordinatorV2Address,
         subscriptionId,
         networkConfig[chainId]["gasLane"],
@@ -43,7 +43,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     ]
     const dlottery = await deploy("DLottery", {
         from: deployer,
-        args: arguments,
+        args: args,
         log: true,
         waitConfirmations: waitBlockConfirmations,
     })
