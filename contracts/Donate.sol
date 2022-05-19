@@ -71,6 +71,7 @@ contract Donate is Ownable {
     }
 
     function donate() public payable {
+        require(addressToRegistered[msg.sender], "You need to register first!");
         require(getConversionRate(msg.value) >= MINIMUM_USD, "You need to spend more ETH!");
         addressToDonatorData[msg.sender].amount += msg.value;
         totalDonations += msg.value;
