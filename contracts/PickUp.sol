@@ -152,6 +152,10 @@ contract PickUp {
         donators.push(msg.sender);
     }
 
+    function getDonation(uint256 index) public view returns (uint256) {
+        return donations[index];
+    }
+
     // onlyOwner function that approves a delivery request
     // the owner will fund the request from the donation pool
     function fundDelivery() public payable onlyOwner {
@@ -159,7 +163,8 @@ contract PickUp {
         deliveryRequest memory d = s_deliveryRequests[0];
         uint256 i = 0;
         uint256 withdrawn = 0;
-        uint256 cost = 25;
+        uint256 cost = 25; // temporary default value for funding a delivery request
+        // uint256 cost = calculateCost(d.id, d.amountInGrams);
         while (cost > 0) {
             // address donator = donate.getDonator(i);
             // uint amount = donate.getAddressToAmount(donator);
@@ -188,10 +193,6 @@ contract PickUp {
         }
         emit request(d.id, d.amountInGrams, d.requestId, true, d.requester);
         delete s_deliveryRequests[0];
-    }
-
-    function getDonation(uint256 index) public view returns (uint256) {
-        return donations[index];
     }
 
     // calculates the cost of a given delivery request

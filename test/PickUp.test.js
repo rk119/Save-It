@@ -178,6 +178,8 @@ describe("PickUp contract", function () {
                 "6.89210",
                 { from: foodPlace1 }
             );
+            // a total of 30 USD gets funded into
+            // the donations by 3 different donators
             await pickup.fund(10, { from: donator1 });
             await pickup.fund(10, { from: donator2 });
             await pickup.fund(10, { from: donator3 });
