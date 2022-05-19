@@ -195,4 +195,8 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     function getNumberOfPlayers() public view returns (uint256) {
         return s_players.length;
     }
+
+    function getNumberOfFoodies() public view returns (uint256) {
+        return foodies.length;
+    }
 }
