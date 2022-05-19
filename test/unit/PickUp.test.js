@@ -178,7 +178,6 @@ describe("PickUp contract", function () {
             pickup.setAddress(donate.address, { from: deployer })
             donate.setAddress(pickup.address, { from: deployer })
             donationAmount = await donate.getUsdAmountInEth(10)
-            console.log((await donate.getUsdAmountInEth(25)).toString())
             await pickup.registerFoodPlace(
                 "Baskin Robbins",
                 "42.51276",
@@ -190,15 +189,11 @@ describe("PickUp contract", function () {
             await donate.register('RifRof', '25.197197', '55.274376', { from: donator1 })
             await donate.register('Moses', '24.197197', '54.274376', { from: donator2 })
             await donate.register('Haya', '23.197197', '53.274376', { from: donator3 })
-            let donationAmount1 = await donate.getAddressToAmount(donator1)
-            console.log(donationAmount1.toString())
             await donate.donate({ from: donator1, value: donationAmount })
             await donate.donate({ from: donator2, value: donationAmount })
             await donate.donate({ from: donator3, value: donationAmount })
             console.log('hahaha', (await donate.getConversionRate(new web3.utils.BN(await web3.eth.getBalance(donate.address)))/ 10**18).toString())
             await pickup.requestDelivery(1, 10000, { from: requester1 })
-            donationAmount1 = await donate.getAddressToAmount(donator1)
-            console.log(donationAmount1.toString())
             result = await pickup.fundDelivery({ from: deployer })
             console.log('hahaha', (await donate.getConversionRate(new web3.utils.BN(await web3.eth.getBalance(donate.address)))/ 10**18).toString())
         })
