@@ -10,18 +10,18 @@
 
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Donate.sol";
 
-contract PickUp {
+contract PickUp is Ownable {
     // this section describes a food organization and its methods
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    // filler variable
-    string public name;
     // the owner of the contract
-    address private i_owner;
+    address private immutable i_owner;
     // id counter to keep track of the food places
     uint256 public s_foodPlaceId;
+    address private s_addressDonate;
     // a mapping to store all the food places
     mapping(uint256 => foodPlace) public s_foodPlaces;
 
@@ -41,7 +41,6 @@ contract PickUp {
     constructor() {
         i_owner = msg.sender;
         s_foodPlaceId = 0;
-        name = "PickUp";
     }
 
     // register a new food place and add it to the mapping
@@ -126,14 +125,14 @@ contract PickUp {
     // simulate 1000 USD donated to the contract
     uint256 public testFunds = 1000;
 
-    modifier onlyOwner() {
-        require(msg.sender == i_owner);
-        _;
-    }
+    // modifier onlyOwner() {
+    //     require(msg.sender == i_owner);
+    //     _;
+    // }
 
-    function transferOwnership(address _newOwner) external onlyOwner {
-        i_owner = _newOwner;
-    }
+    // function transferOwnership(address _newOwner) external onlyOwner {
+    //     i_owner = _newOwner;
+    // }
     
     event notifyDonator(
         address donator,
@@ -141,54 +140,45 @@ contract PickUp {
         uint256 foodPlaceId
     );
 
-    // create variables to use the donate contract's functions
-    address temp;
-    Donate private donate = new Donate(temp);
-    address[] private donators;
-    uint256[] private donations;
-
-    function fund(uint256 amount) public {
-        donations.push(amount);
-        donators.push(msg.sender);
+    function setAddress(address _addressDonate) external onlyOwner { 
+        s_addressDonate = _addressDonate;
     }
-
-    function getDonation(uint256 index) public view returns (uint256) {
-        return donations[index];
-    }
-
+    
     // onlyOwner function that approves a delivery request
     // the owner will fund the request from the donation pool
-    function fundDelivery() public payable onlyOwner {
+    function fundDelivery() public onlyOwner {
         require(s_deliveryRequests.length > 0, "No pending requests");
+        IDonate donate = IDonate(s_addressDonate);
         deliveryRequest memory d = s_deliveryRequests[0];
         uint256 i = 0;
         uint256 withdrawn = 0;
         uint256 cost = 25; // temporary default value for funding a delivery request
         // uint256 cost = calculateCost(d.id, d.amountInGrams);
+        cost = donate.getUsdAmountInEth(cost);
         while (cost > 0) {
-            // address donator = donate.getDonator(i);
-            // uint amount = donate.getAddressToAmount(donator);
-            // if (amount > 0) {
-            //     if (amount >= cost) {
-            //         withdrawn = uint(donate.withdraw(donator, cost));
-            //     }
-            //     if (amount < cost) {
-            //         withdrawn = uint(donate.withdraw(donator, amount));
-            //     }
-            //     cost -= withdrawn;
-            //     emit notifyDonator(donator, withdrawn, d.id);
-            // }
-            address donator = donators[i];
-            uint amount = donations[i];
-            if (amount >= cost) {
-                withdrawn = cost;
+            address donator = donate.getDonator(i);
+            uint amount = donate.getAddressToAmount(donator);
+            if (amount > 0) {
+                if (amount >= cost) {
+                    withdrawn = uint(donate.withdraw(donator, cost));
+                }
+                if (amount < cost) {
+                    withdrawn = uint(donate.withdraw(donator, amount));
+                }
+                cost -= withdrawn;
+                emit notifyDonator(donator, withdrawn, d.id);
             }
-            if (amount < cost) {
-                withdrawn = amount;
-            }
-            cost -= withdrawn;
-            donations[i] -= withdrawn;
-            emit notifyDonator(donator, withdrawn, d.id);
+        //     address donator = donators[i];
+        //     uint amount = donations[i];
+        //     if (amount >= cost) {
+        //         withdrawn = cost;
+        //     }
+        //     if (amount < cost) {
+        //         withdrawn = amount;
+        //     }
+        //     cost -= withdrawn;
+        //     donations[i] -= withdrawn;
+        //     emit notifyDonator(donator, withdrawn, d.id);
             i++;
         }
         emit request(d.id, d.amountInGrams, d.requestId, true, d.requester);

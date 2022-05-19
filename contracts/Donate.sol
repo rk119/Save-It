@@ -4,7 +4,13 @@ pragma solidity ^0.8.0;
 
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "hardhat/console.sol";
+
+interface IDonate {
+    function getDonator(uint256 index) external view returns (address); 
+    function getAddressToAmount(address donator) external view returns (uint256);
+    function getUsdAmountInEth(uint256 usdAmount) external view returns (uint256);
+    function withdraw(address donator, uint256 amount) external payable returns(uint256);
+}
 
 contract Donate is Ownable {
 
@@ -16,6 +22,7 @@ contract Donate is Ownable {
     }
     uint256 public constant MINIMUM_USD = 10 * 10**18;
     address payable private immutable i_owner;
+    address private pickMe;
     uint256 public totalDonators;
     uint256 public totalDonations;
     uint256 public entries;
@@ -50,7 +57,7 @@ contract Donate is Ownable {
         return numerator*(uint(10)**uint(precision))/denominator;
     }
 
-    function getUsdAmountInEth(uint256 usdAmount) public view returns (uint256) {
+    function getUsdAmountInEth(uint256 usdAmount) external view returns (uint256) {
         usdAmount = usdAmount * (10 ** 18);
         uint256 ethPrice = getPrice(s_priceFeed);
         uint256 usdAmountInEth = divider(usdAmount, ethPrice, 18);
@@ -81,11 +88,11 @@ contract Donate is Ownable {
         emit DonationAccepted(msg.sender, msg.value);
     }
 
-    function getDonator(uint256 index) public view returns (address) {
+    function getDonator(uint256 index) external view returns (address) {
         return donators[index];
     }
 
-    function getAddressToAmount(address donator) public view returns (uint256) {
+    function getAddressToAmount(address donator) external view returns (uint256) {
         return addressToDonatorData[donator].amount;
     }
 
@@ -97,10 +104,38 @@ contract Donate is Ownable {
         return idToAddress[id];
     }
 
-    function withdraw(address donator, uint256 amount) public payable onlyOwner returns(uint256) {
+     function setAddress(address _addressDonate) external onlyOwner { 
+        pickMe = _addressDonate;
+    }
+
+    function withdraw(address donator, uint256 amount) external payable returns(uint256) {
+        require(msg.sender == i_owner || msg.sender == pickMe, "Not the owner");
         require(addressToDonatorData[donator].amount >= amount, "Can't withdraw more than donated amount!");
         addressToDonatorData[donator].amount = addressToDonatorData[donator].amount - amount;
         payable(i_owner).transfer(amount);
         return amount;
     }
+
+    // function fund(uint256 amountCost) public payable onlyOwner returns (bool) {
+    //     uint256 i = 0;
+    //     uint256 withdrawn = 0;
+    //     uint256 cost = amountCost;
+    //     while (cost > 0) {
+    //         address donator = donators[i];
+    //         uint amount = addressToDonatorData[donator].amount;
+    //         if (amount > 0) {
+    //             if (amount >= cost) {
+    //                 withdrawn = uint(withdraw(donator, cost));
+    //             }
+    //             if (amount < cost) {
+    //                 withdrawn = uint(withdraw(donator, amount));
+    //             }
+    //             cost -= withdrawn;
+    //             payable(i_owner).transfer(withdrawn);
+    //             // emit notifyDonator(donator, withdrawn, d.id);
+    //         }
+    //         i++;
+    //     }
+    //     return true;
+    // }
 }
