@@ -123,7 +123,7 @@ describe("DLottery contract", function () {
         it("rejects if checkUpkeep is false", async () => {
             await expect(dlottery.performUpkeep("0x")).to.be.rejected;
         });
-        it("updates the lottery state and emits a requestId", async () => {
+        xit("updates the lottery state and emits a requestId", async () => {
             await dlottery.fund(10, { from: donator1 });
             await network.provider.send("evm_increaseTime", [
                 interval.toNumber() + 100,
