@@ -35,6 +35,17 @@ describe("Donate contract", function () {
             assert.equal(totalDonations, 0)
             assert.equal(entries, 0)
         })
+
+        it('registers a donator', async () => {
+            let result = await donate.register('RifRof', '25.197197', '55.274376', { from: donator1 })
+            const event = result.logs[0].args
+            assert.equal(result.logs[0].event, 'DonatorRegistered')
+            assert.equal(event.amount, 0)
+            assert.equal(event.name, 'RifRof')
+            assert.equal(event.latitude, '25.197197')
+            assert.equal(event.longitude, '55.274376')
+        })
+
     })
 
     describe('donating', async () => {
@@ -101,6 +112,7 @@ describe("Donate contract", function () {
         it('different address makes another donation', async () => {
             let oldBalance2 = await web3.eth.getBalance(donator2)
             oldBalance2 = new web3.utils.BN(oldBalance2)
+            await donate.register('Moses', '21.191135', '57.274876', { from: donator2})
             let secondDonation = web3.utils.toWei('0.008', 'Ether')
             let result2 = await donate.donate({ from: donator2, value: secondDonation })
             secondDonation = new web3.utils.BN(secondDonation)

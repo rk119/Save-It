@@ -24,7 +24,7 @@ contract Donate is Ownable {
     mapping(address => DonatorData) private addressToDonatorData;
     mapping(uint256 => address) private idToAddress;
     AggregatorV3Interface private s_priceFeed;
-    event DonatorRegistered(string name);
+    event DonatorRegistered(uint256 amount, string name, string latitude, string longitude);
     event DonationAccepted(address indexed donor, uint256 amount);
 
     constructor(address priceFeed) {
@@ -57,20 +57,22 @@ contract Donate is Ownable {
         return usdAmountInEth;
     }
 
-    function register(string memory name, string memory longitude, string memory latitude) public {
+    function register(string memory name, string memory latitude, string memory longitude) public {
+        require(msg.sender != i_owner, "Owner cannot register as donator");
         require(!addressToRegistered[msg.sender], "Already registered");
         require(bytes(name).length > 0, "Invalid. Name cannot be empty");
         require(bytes(longitude).length > 0, "Invalid. Longitude cannot be empty");
         require(bytes(latitude).length > 0, "Invalid. Latitude cannot be empty");
         addressToRegistered[msg.sender] = true;
-        DonatorData memory data = DonatorData(0, name, longitude, latitude);
+        DonatorData memory data = DonatorData(0, name, latitude, longitude);
         addressToDonatorData[msg.sender] = data;
         donators.push(msg.sender);
         totalDonators++;
-        emit DonatorRegistered(name);
+        emit DonatorRegistered(0, name, latitude, longitude);
     }
 
     function donate() public payable {
+        require(msg.sender != i_owner, "Owner is already a donator");
         require(addressToRegistered[msg.sender], "You need to register first!");
         require(getConversionRate(msg.value) >= MINIMUM_USD, "You need to spend more ETH!");
         addressToDonatorData[msg.sender].amount += msg.value;
