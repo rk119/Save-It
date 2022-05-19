@@ -1,6 +1,3 @@
-const { getNamedAccounts, deployments, ethers, network } = require("hardhat")
-const { assert, AssertionError } = require("chai");
-
 const DLottery = artifacts.require("DLottery.sol");
 
 require("chai").use(require("chai-as-promised")).should();

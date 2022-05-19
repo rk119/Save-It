@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "hardhat/console.sol";
 
 contract Donate is Ownable {
 
@@ -32,16 +33,20 @@ contract Donate is Ownable {
         return uint256(answer * 10000000000);
     }
 
-    function getConversionRate(uint256 ethAmount) internal view returns (uint256) {
+    function getConversionRate(uint256 ethAmount) public view returns (uint256) {
         uint256 ethPrice = getPrice(s_priceFeed);
         uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1000000000000000000;
+        console.log("ETH Price: ", ethAmountInUsd / 1000000000000000000);
         return ethAmountInUsd;
     }
 
+    function getUsdAmountInEth(uint256 usdAmount) public view returns (uint256) {
+        uint256 ethPrice = getPrice(s_priceFeed);
+        uint256 usdAmountInEth = (usdAmount / ethPrice) * 1000000000000000000;
+        return usdAmountInEth;
+    }
+
     function donate() public payable {
-        // uint256 minimumEth = 1000000000000000000;
-        // require(msg.value >= minimumEth);
-        // require(getConversionRate(msg.value) >= minimumUSD, "You need to spend more ETH!");
         require(getConversionRate(msg.value) >= MINIMUM_USD, "You need to spend more ETH!");
         addressToAmount[msg.sender] += msg.value;
         totalDonations += msg.value;
@@ -51,20 +56,11 @@ contract Donate is Ownable {
             addressToRegistered[msg.sender] = true;
             totalDonators++;
         }
-        // payable(i_owner).transfer(msg.value);
         emit DonationAccepted(msg.sender, msg.value);
-    }
-
-    function getVersion() public view returns (uint256) {
-        return s_priceFeed.version();
     }
 
     function getDonator(uint256 index) public view returns (address) {
         return donators[index];
-    }
-
-    function getAddressToRegistered(address donator) public view returns (bool) {
-        return addressToRegistered[donator];
     }
 
     function getAddressToAmount(address donator) public view returns (uint256) {
@@ -76,12 +72,10 @@ contract Donate is Ownable {
     }
 
     function withdraw(address donator, uint256 amount) public payable onlyOwner returns(uint256) {
-        addressToAmount[donator] = addressToAmount[donator] - amount;
-        payable(i_owner).transfer(amount);
+        require(getConversionRate(addressToAmount[donator]) >= amount, "Can't withdraw more than donated amount!");
+        uint256 eamount = getUsdAmountInEth(amount);
+        addressToAmount[donator] = addressToAmount[donator] - eamount;
+        payable(i_owner).transfer(eamount);
         return amount;
-    }
-
-    function getPriceFeed() public view returns (AggregatorV3Interface) {
-        return s_priceFeed;
     }
 }
