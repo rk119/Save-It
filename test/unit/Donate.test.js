@@ -28,9 +28,9 @@ describe("Donate contract", function () {
         })
 
         it('total donations, donators and entries are initially zero', async () => {
-            const totalDonators = await donate.totalDonators()
-            const totalDonations = await donate.totalDonations()
-            const entries = await donate.entries()
+            const totalDonators = await donate.s_totalDonators()
+            const totalDonations = await donate.s_totalDonations()
+            const entries = await donate.s_entries()
             assert.equal(totalDonators, 0)
             assert.equal(totalDonations, 0)
             assert.equal(entries, 0)
@@ -83,9 +83,9 @@ describe("Donate contract", function () {
         })
 
         it('donations and donators incremented', async () => {
-            const totalDonations = await donate.totalDonations()
+            const totalDonations = await donate.s_totalDonations()
             assert.equal(totalDonations, web3.utils.toWei('0.0052', 'Ether'))
-            const totalDonators = await donate.totalDonators()
+            const totalDonators = await donate.s_totalDonators()
             assert.equal(totalDonators, 1)
         })
 
@@ -101,8 +101,8 @@ describe("Donate contract", function () {
             donateNewBalance = new web3.utils.BN(donateNewBalance)
 
             const exepectedBalance = donateInitialBalance.add(anotherDonation)
-            const totalDonations = await donate.totalDonations()
-            const totalDonators = await donate.totalDonators()
+            const totalDonations = await donate.s_totalDonations()
+            const totalDonators = await donate.s_totalDonators()
 
             assert.equal(donateNewBalance.toString(), exepectedBalance.toString(), 'contract increments amount donated for address correctly')
             assert.equal(totalDonations, web3.utils.toWei('0.0152', 'Ether'), 'total donations incremented correctly')
@@ -134,9 +134,9 @@ describe("Donate contract", function () {
             let address = await donate.getIdToAddress(3)
             assert.equal(address, donator2, 'correct id to donator2 address in the entry')
 
-            const totalDonations = await donate.totalDonations()
+            const totalDonations = await donate.s_totalDonations()
             assert.equal(totalDonations, web3.utils.toWei('0.0232', 'Ether'), 'correct total amount of donations')
-            const totalDonators = await donate.totalDonators()
+            const totalDonators = await donate.s_totalDonators()
             assert.equal(totalDonators, 2, 'correctly increments the number of donators')
         })
 
