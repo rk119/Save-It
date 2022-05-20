@@ -185,16 +185,14 @@ describe("PickUp contract", function () {
             )
             // a total of 30 USD gets funded into
             // the donations by 3 different donators
-            await donate.register('RifRof', '25.197197', '55.274376', { from: donator1 })
-            await donate.register('Moses', '24.197197', '54.274376', { from: donator2 })
-            await donate.register('Haya', '23.197197', '53.274376', { from: donator3 })
+            await donate.registerDonator('RifRof', '25.197197', '55.274376', { from: donator1 })
+            await donate.registerDonator('Moses', '24.197197', '54.274376', { from: donator2 })
+            await donate.registerDonator('Haya', '23.197197', '53.274376', { from: donator3 })
             await donate.donate({ from: donator1, value: donationAmount })
             await donate.donate({ from: donator2, value: donationAmount })
             await donate.donate({ from: donator3, value: donationAmount })
-            console.log('hahaha', (await donate.getConversionRate(new web3.utils.BN(await web3.eth.getBalance(donate.address)))/ 10**18).toString())
             await pickup.requestDelivery(1, 10000, { from: requester1 })
             await pickup.fundDelivery({ from: deployer })
-            console.log('hahaha', (await donate.getConversionRate(new web3.utils.BN(await web3.eth.getBalance(donate.address)))/ 10**18).toString())
         })
         it("Deducts 25 USD from the donations", async () => {
             // let newBalance = await web3.eth.getBalance(deployer)

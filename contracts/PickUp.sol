@@ -17,17 +17,9 @@ contract PickUp is Ownable {
     // this section describes a food organization and its methods
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    // the owner of the contract
-    address private immutable i_owner;
-    // id counter to keep track of the food places
-    uint256 public s_foodPlaceId;
-    address private s_addressDonate;
-    // a mapping to store all the food places
-    mapping(uint256 => foodPlace) public s_foodPlaces;
-
     // a struct to describe a food
     // seller, like a restuarant
-    struct foodPlace {
+    struct FoodPlace {
         uint256 id;
         string name;
         string latitude;
@@ -35,54 +27,8 @@ contract PickUp is Ownable {
         address owner;
     }
 
-    // to be emitted when a new food place is registered
-    event foodPlaceRegistered(uint256 id);
-
-    constructor() {
-        i_owner = msg.sender;
-        s_foodPlaceId = 0;
-    }
-
-    // register a new food place and add it to the mapping
-    function registerFoodPlace(
-        string memory _name,
-        string memory _latitude,
-        string memory _longitude
-    ) public {
-        // ensure the parameters are valid
-        require(bytes(_name).length > 0, "Invalid. Name cannot be empty");
-        require(
-            bytes(_latitude).length > 0,
-            "Invalid. Latitude cannot be empty"
-        );
-        require(
-            bytes(_longitude).length > 0,
-            "Invalid. Longitude cannot be empty"
-        );
-        // increment the counterId
-        s_foodPlaceId++;
-        // add the food place to the mapping
-        s_foodPlaces[s_foodPlaceId] = foodPlace(
-            s_foodPlaceId,
-            _name,
-            _latitude,
-            _longitude,
-            msg.sender
-        );
-        // trigger an event to say a food place was registered
-        emit foodPlaceRegistered(s_foodPlaceId);
-    }
-
-    // this section describes the request of a food delivery service
-    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-    // id counter to keep track of the delivery requests
-    uint256 public s_requestId;
-    // an array to store all the pending delivery requests
-    deliveryRequest[] s_deliveryRequests;
-
     // a struct to describe a food delivery request
-    struct deliveryRequest {
+    struct DeliveryRequest {
         uint256 id;
         uint256 amountInGrams;
         uint256 requestId;
@@ -90,56 +36,64 @@ contract PickUp is Ownable {
         address requester;
     }
 
+    // the owner of the contract
+    address private immutable i_owner;
+    // id counter to keep track of the food places
+    uint256 public s_foodPlaceId;
+    
+    address private s_addressDonate;
+    // id counter to keep track of the delivery requests
+    uint256 public s_requestId;
+    // an array to store all the pending delivery requests
+    DeliveryRequest[] s_deliveryRequests;
+    // a mapping to store all the food places
+    mapping(uint256 => FoodPlace) public s_foodPlaces;
+    // to be emitted when a new food place is registered
+    event FoodPlaceRegistered(uint256 id);
     // to be emitted when a new food delivery is requested
-    event request(
-        uint256 id,
-        uint256 amountInGrams,
-        uint256 requestId,
-        bool approved,
-        address requester
-    );
+    event Request(uint256 id, uint256 amountInGrams, uint256 requestId, bool approved, address requester);
+    event NotifyDonator(address donator, uint256 donation, uint256 foodPlaceId);
+
+    constructor() {
+        i_owner = msg.sender;
+        s_foodPlaceId = 0;
+    }
+
+    // register a new food place and add it to the mapping
+    function registerFoodPlace(string memory _name, string memory _latitude, string memory _longitude) public {
+        // ensure the parameters are valid
+        require(bytes(_name).length > 0, "Invalid. Name cannot be empty");
+        require(bytes(_latitude).length > 0, "Invalid. Latitude cannot be empty");
+        require(bytes(_longitude).length > 0, "Invalid. Longitude cannot be empty");
+        // increment the counterId
+        s_foodPlaceId++;
+        // add the food place to the mapping
+        s_foodPlaces[s_foodPlaceId] = FoodPlace(s_foodPlaceId, _name, _latitude, _longitude, msg.sender);
+        // trigger an event to say a food place was registered
+        emit FoodPlaceRegistered(s_foodPlaceId);
+    }
+
+    // this section describes the request of a food delivery service
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     // a food place can request the transportation
     // service to pack and deliver their food
     function requestDelivery(uint256 _id, uint256 _amountInGrams) public {
         // ensure the parameters are valid
         require(_id > 0 && _id <= s_foodPlaceId, "Invalid. ID does not exist");
-        require(
-            _amountInGrams > 0 && _amountInGrams < 100000,
-            "Invalid. Specified food amount can not be transported"
-        );
+        require(_amountInGrams > 0 && _amountInGrams < 100000, "Invalid. Specified food amount can not be transported");
         // increment the requestsId
         s_requestId++;
         // add a new pending request
-        s_deliveryRequests.push(
-            deliveryRequest(_id, _amountInGrams, s_requestId, false, msg.sender)
-        );
+        s_deliveryRequests.push(DeliveryRequest(_id, _amountInGrams, s_requestId, false, msg.sender));
         // trigger an event for the new delivery request
-        emit request(_id, _amountInGrams, s_requestId, false, msg.sender);
+        emit Request(_id, _amountInGrams, s_requestId, false, msg.sender);
     }
 
     // this section describes owner only methods such as funding
     // and the approval and funding of a food delivery service
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-    // simulate 1000 USD donated to the contract
-    uint256 public testFunds = 1000;
-
-    // modifier onlyOwner() {
-    //     require(msg.sender == i_owner);
-    //     _;
-    // }
-
-    // function transferOwnership(address _newOwner) external onlyOwner {
-    //     i_owner = _newOwner;
-    // }
     
-    event notifyDonator(
-        address donator,
-        uint256 donation,
-        uint256 foodPlaceId
-    );
-
     function setAddress(address _addressDonate) external onlyOwner { 
         s_addressDonate = _addressDonate;
     }
@@ -149,7 +103,7 @@ contract PickUp is Ownable {
     function fundDelivery() public onlyOwner {
         require(s_deliveryRequests.length > 0, "No pending requests");
         IDonate donate = IDonate(s_addressDonate);
-        deliveryRequest memory d = s_deliveryRequests[0];
+        DeliveryRequest memory d = s_deliveryRequests[0];
         uint256 i = 0;
         uint256 withdrawn = 0;
         uint256 cost = 25; // temporary default value for funding a delivery request
@@ -166,22 +120,11 @@ contract PickUp is Ownable {
                     withdrawn = uint(donate.withdraw(donator, amount));
                 }
                 cost -= withdrawn;
-                emit notifyDonator(donator, withdrawn, d.id);
+                emit NotifyDonator(donator, withdrawn, d.id);
             }
-        //     address donator = donators[i];
-        //     uint amount = donations[i];
-        //     if (amount >= cost) {
-        //         withdrawn = cost;
-        //     }
-        //     if (amount < cost) {
-        //         withdrawn = amount;
-        //     }
-        //     cost -= withdrawn;
-        //     donations[i] -= withdrawn;
-        //     emit notifyDonator(donator, withdrawn, d.id);
             i++;
         }
-        emit request(d.id, d.amountInGrams, d.requestId, true, d.requester);
+        emit Request(d.id, d.amountInGrams, d.requestId, true, d.requester);
         delete s_deliveryRequests[0];
     }
 

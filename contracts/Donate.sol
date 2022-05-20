@@ -66,17 +66,17 @@ contract Donate is Ownable {
         return usdAmountInEth;
     }
 
-    function register(string memory _name, string memory _latitude, string memory _longitude) public {
+    function registerDonator(string memory _name, string memory _latitude, string memory _longitude) public {
         require(msg.sender != i_owner, "Owner cannot register as donator");
         require(!s_addressToRegistered[msg.sender], "Already registered");
         require(bytes(_name).length > 0, "Invalid. Name cannot be empty");
         require(bytes(_longitude).length > 0, "Invalid. Longitude cannot be empty");
         require(bytes(_latitude).length > 0, "Invalid. Latitude cannot be empty");
+        s_totalDonators++;
         s_addressToRegistered[msg.sender] = true;
         DonatorData memory data = DonatorData(0, _name, _latitude, _longitude);
         s_addressToDonatorData[msg.sender] = data;
         s_donators.push(msg.sender);
-        s_totalDonators++;
         emit DonatorRegistered(0, _name, _latitude, _longitude);
     }
 
@@ -84,8 +84,8 @@ contract Donate is Ownable {
         require(msg.sender != i_owner, "Owner is already a donator");
         require(s_addressToRegistered[msg.sender], "You need to register first!");
         require(getConversionRate(msg.value) >= MINIMUM_USD, "You need to spend more ETH!");
-        s_addressToDonatorData[msg.sender].amount += msg.value;
         s_totalDonations += msg.value;
+        s_addressToDonatorData[msg.sender].amount += msg.value;
         s_idToAddress[++s_entries] = msg.sender;
         emit DonationAccepted(msg.sender, msg.value);
     }
