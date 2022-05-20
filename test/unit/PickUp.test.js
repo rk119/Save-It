@@ -100,7 +100,7 @@ describe("PickUp contract", function () {
                 "-126.22948",
                 { from: foodPlace4 }
             )
-            numOfFoodPlaces = await pickup.foodPlaceId()
+            numOfFoodPlaces = await pickup.s_foodPlaceId()
             it("Resgisters multiple food places", async () => {
                 assert.equal(numOfFoodPlaces, 4)
                 const event1 = result1.logs[0].args
@@ -169,7 +169,6 @@ describe("PickUp contract", function () {
     // test the appending of a new delivery request
     describe("Funding of a delivery", async () => {
         let result, oldBalance, donationAmount, donate, mockV3Aggregator
-       
         beforeEach(async () => {
             // oldBalance = await web3.eth.getBalance(deployer)
             // oldBalance = new web3.utils.BN(oldBalance)
@@ -194,7 +193,7 @@ describe("PickUp contract", function () {
             await donate.donate({ from: donator3, value: donationAmount })
             console.log('hahaha', (await donate.getConversionRate(new web3.utils.BN(await web3.eth.getBalance(donate.address)))/ 10**18).toString())
             await pickup.requestDelivery(1, 10000, { from: requester1 })
-            result = await pickup.fundDelivery({ from: deployer })
+            await pickup.fundDelivery({ from: deployer })
             console.log('hahaha', (await donate.getConversionRate(new web3.utils.BN(await web3.eth.getBalance(donate.address)))/ 10**18).toString())
         })
         it("Deducts 25 USD from the donations", async () => {
