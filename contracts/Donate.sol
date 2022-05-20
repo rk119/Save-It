@@ -44,6 +44,10 @@ contract Donate is Ownable {
         s_entries = 0;
     }
 
+    function getPriceFeed() public view returns (AggregatorV3Interface) {
+        return s_priceFeed;
+    }
+
     function getPrice(AggregatorV3Interface _priceFeed) internal view returns (uint256) {
         (, int256 answer, , , ) = _priceFeed.latestRoundData();
         return uint256(answer * 10000000000);
