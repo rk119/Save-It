@@ -9,18 +9,7 @@ describe("PickUp contract", function () {
 
     before(async function () {
         accounts = await web3.eth.getAccounts();
-        [
-            deployer,
-            foodPlace1,
-            foodPlace2,
-            foodPlace3,
-            foodPlace4,
-            requester1,
-            requester2,
-            donator1,
-            donator2,
-            donator3
-        ] = accounts
+        [deployer, foodPlace1, foodPlace2, foodPlace3, foodPlace4, requester1, requester2, donator1, donator2, donator3] = accounts
         pickup = await PickUp.new()
     })
 
