@@ -12,6 +12,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Donate.sol";
+import "hardhat/console.sol";
 
 contract PickUp is Ownable {
     // this section describes a food organization and its methods
@@ -21,93 +22,93 @@ contract PickUp is Ownable {
     // seller, like a restuarant
     struct FoodPlace {
         uint256 id;
-        string name;
-        string latitude;
-        string longitude;
         address owner;
+        string name;
+        string location;
+        bool registered;
+    }
+    // a struct to describe a food delivery request
+    struct Request {
+        address requester;
+        string name;
+        uint256 amountInKG;
+        uint256 requestId;
     }
 
-    // a struct to describe a food delivery request
-    struct DeliveryRequest {
-        uint256 id;
-        uint256 amountInGrams;
-        uint256 requestId;
-        bool approved;
-        address requester;
-    }
+    /* Variables */
 
     // the owner of the contract
     address private immutable i_owner;
     // id counter to keep track of the food places
-    uint256 public s_foodPlaceId;
-    
+    uint256 private i_numOfFoodPlaces;
+    // address of donate contract
     address private s_addressDonate;
     // id counter to keep track of the delivery requests
-    uint256 public s_requestId;
+    uint256 private i_numOfRequests;
     // an array to store all the pending delivery requests
-    DeliveryRequest[] s_deliveryRequests;
+    Request[] s_deliveryRequests;
     // a mapping to store all the food places
-    mapping(uint256 => FoodPlace) public s_foodPlaces;
+    mapping(address => FoodPlace) public s_foodPlaces;
     // to be emitted when a new food place is registered
-    event FoodPlaceRegistered(uint256 id);
+    event FoodPlaceRegistered(
+        uint256 id,
+        address owner,
+        string name,
+        string location,
+        bool registered
+    );
     // to be emitted when a new food delivery is requested
-    event Request(uint256 id, uint256 amountInGrams, uint256 requestId, bool approved, address requester);
-    event NotifyDonator(address donator, uint256 donation, uint256 foodPlaceId);
+    event NewRequest(
+        address requester,
+        uint256 amountInKG,
+        uint256 requestId
+    );
+    // to be emitted to notify a donator of their donation usage
+    event NotifyDonator(address donator, uint256 donation, string foodPlaceName);
+    event RevertTest();
 
     constructor() {
         i_owner = msg.sender;
-        s_foodPlaceId = 0;
-    }
-
-    // register a new food place and add it to the mapping
-    function registerFoodPlace(string memory _name, string memory _latitude, string memory _longitude) public {
-        // ensure the parameters are valid
-        require(bytes(_name).length > 0, "Invalid. Name cannot be empty");
-        require(bytes(_latitude).length > 0, "Invalid. Latitude cannot be empty");
-        require(bytes(_longitude).length > 0, "Invalid. Longitude cannot be empty");
-        // increment the counterId
-        s_foodPlaceId++;
-        // add the food place to the mapping
-        s_foodPlaces[s_foodPlaceId] = FoodPlace(s_foodPlaceId, _name, _latitude, _longitude, msg.sender);
-        // trigger an event to say a food place was registered
-        emit FoodPlaceRegistered(s_foodPlaceId);
+        i_numOfFoodPlaces = 0;
     }
 
     // this section describes the request of a food delivery service
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-    // a food place can request the transportation
-    // service to pack and deliver their food
-    function requestDelivery(uint256 _id, uint256 _amountInGrams) public {
+    function requestDelivery(uint256 _amountInKG) public {
         // ensure the parameters are valid
-        require(_id > 0 && _id <= s_foodPlaceId, "Invalid. ID does not exist");
-        require(_amountInGrams > 0 && _amountInGrams < 100000, "Invalid. Specified food amount can not be transported");
-        // increment the requestsId
-        s_requestId++;
+        require(
+            _amountInKG > 0 && _amountInKG < 300,
+            "Invalid. Specified food amount can not be transported"
+        );
+        // if the food place is not registered, register it
+        if (!s_foodPlaces[msg.sender].registered) {
+            i_numOfFoodPlaces++;
+            s_foodPlaces[msg.sender].registered = true;
+            s_foodPlaces[msg.sender].owner = msg.sender;
+            s_foodPlaces[msg.sender].id = i_numOfFoodPlaces;
+            s_foodPlaces[msg.sender].name = "default name";
+            s_foodPlaces[msg.sender].location = "default location";
+        }
         // add a new pending request
-        s_deliveryRequests.push(DeliveryRequest(_id, _amountInGrams, s_requestId, false, msg.sender));
+        s_deliveryRequests.push(
+            Request(msg.sender, s_foodPlaces[msg.sender].name, _amountInKG, ++i_numOfRequests)
+        );
         // trigger an event for the new delivery request
-        emit Request(_id, _amountInGrams, s_requestId, false, msg.sender);
+        emit NewRequest(msg.sender, _amountInKG, i_numOfRequests);
     }
 
     // this section describes owner only methods such as funding
     // and the approval and funding of a food delivery service
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    
-    function setAddress(address _addressDonate) external onlyOwner { 
-        s_addressDonate = _addressDonate;
-    }
-    
-    // onlyOwner function that approves a delivery request
-    // the owner will fund the request from the donation pool
     function fundDelivery() public onlyOwner {
         require(s_deliveryRequests.length > 0, "No pending requests");
         IDonate donate = IDonate(s_addressDonate);
-        DeliveryRequest memory d = s_deliveryRequests[0];
+        Request memory request = s_deliveryRequests[0];
+        console.log("request", request);
         uint256 i = 0;
         uint256 withdrawn = 0;
-        uint256 cost = 25; // temporary default value for funding a delivery request
-        // uint256 cost = calculateCost(d.id, d.amountInGrams);
+        uint256 cost = 25; // placeholder value for funding a delivery request
+        // uint256 cost = calculateCost(d.id, d.amountInKG);
         cost = donate.getUsdAmountInEth(cost);
         while (cost > 0) {
             address donator = donate.getDonator(i);
@@ -120,20 +121,33 @@ contract PickUp is Ownable {
                     withdrawn = uint(donate.withdraw(donator, amount));
                 }
                 cost -= withdrawn;
-                emit NotifyDonator(donator, withdrawn, d.id);
+                emit NotifyDonator(donator, withdrawn, request.name);
             }
             i++;
         }
-        emit Request(d.id, d.amountInGrams, d.requestId, true, d.requester);
+        // emit RevertTest();
         delete s_deliveryRequests[0];
     }
 
-    // calculates the cost of a given delivery request
-    function calculateCost(uint256 _id, uint256 _amountInGrams)
-        public
-        returns (uint256)
-    {
-        // calculate the cost of the delivery
-        // return the cost
+    /* setter functions */
+    function setAddress(address _addressDonate) external onlyOwner {
+        s_addressDonate = _addressDonate;
+    }
+
+    function setName(string memory _name) public {
+        s_foodPlaces[msg.sender].name = _name;
+    }
+
+    function setLocation(string memory _location) public {
+        s_foodPlaces[msg.sender].location = _location;
+    }
+
+    /* getter functions */
+    function numOfFoodPlaces() external view returns (uint256) {
+        return i_numOfFoodPlaces;
+    }
+
+    function numOfRequests() external view returns (uint256) {
+        return i_numOfRequests;
     }
 }

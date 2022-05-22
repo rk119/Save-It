@@ -2,7 +2,6 @@
  * @type import('hardhat/config').HardhatUserConfig
  */
 
-require("@nomiclabs/hardhat-truffle5")
 require("solidity-coverage")
 require("hardhat-deploy")
 require("@nomiclabs/hardhat-waffle")

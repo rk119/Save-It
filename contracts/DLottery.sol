@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.7;
 
+import "./Donate.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
@@ -34,7 +35,7 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     address private s_currentWinner;
     uint256 private i_entranceFee;
     address payable[] private s_donators;
-    Foodie[] private foodies;
+    Foodie[] private s_foodies;
     LotteryState private s_lotteryState;
 
     /* Events */
@@ -68,7 +69,7 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     }
 
     function addFoodie(string memory _food) public {
-        foodies.push(Foodie(_food, msg.sender));
+        s_foodies.push(Foodie(_food, msg.sender));
         emit newFoodieAdded(_food);
     }
 
@@ -87,15 +88,10 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     //     emit LotteryEnter(msg.sender);
     // }
 
-    /**
-     * @dev This is the function that the Chainlink Keeper nodes call
-     * they look for `upkeepNeeded` to return True.
-     * the following should be true for this to return true:
-     * 1. The time interval has passed between lottery runs.
-     * 2. The lottery is open.
-     * 3. The contract has ETH.
-     * 4. Implicity, your subscription is funded with LINK.
-     */
+    // function setAddress(address _addressDonate) external onlyOwner { 
+    //     s_addressDonate = _addressDonate;
+    // }
+
     function checkUpkeep(bytes memory /* checkData */)
         public
         view
@@ -197,6 +193,6 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     }
 
     function getNumberOfFoodies() public view returns (uint256) {
-        return foodies.length;
+        return s_foodies.length;
     }
 }
