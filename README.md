@@ -5,5 +5,8 @@
 ### Intro (with facts)
 
 ### Technologies used (most detailed para)
+##### -> Maybe talk about what this dapp is helping us acheive and why did we implement it on blockchain
+##### -> Languages 
+##### -> Chainlink services and their purpose in the project
 
 ### Our goal
