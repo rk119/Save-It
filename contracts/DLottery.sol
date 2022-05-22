@@ -72,20 +72,20 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         emit newFoodieAdded(_food);
     }
 
-    function enterLottery() public payable {
-        // require(msg.value >= i_entranceFee, "Not enough value sent");
-        // require(s_lotteryState == LotteryState.OPEN, "Lottery is not open");
-        if (msg.value < i_entranceFee) {
-            revert Lottery__SendMoreToEnterLottery();
-        }
-        if (s_lotteryState != LotteryState.OPEN) {
-            revert Lottery__LotteryNotOpen();
-        }
-        s_donators.push(payable(msg.sender));
-        // Emit an event when we update a dynamic array or mapping
-        // Named events with the function name reversed
-        emit LotteryEnter(msg.sender);
-    }
+    // function enterLottery() public payable {
+    //     // require(msg.value >= i_entranceFee, "Not enough value sent");
+    //     // require(s_lotteryState == LotteryState.OPEN, "Lottery is not open");
+    //     if (msg.value < i_entranceFee) {
+    //         revert Lottery__SendMoreToEnterLottery();
+    //     }
+    //     if (s_lotteryState != LotteryState.OPEN) {
+    //         revert Lottery__LotteryNotOpen();
+    //     }
+    //     s_donators.push(payable(msg.sender));
+    //     // Emit an event when we update a dynamic array or mapping
+    //     // Named events with the function name reversed
+    //     emit LotteryEnter(msg.sender);
+    // }
 
     /**
      * @dev This is the function that the Chainlink Keeper nodes call
