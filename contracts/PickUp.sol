@@ -90,9 +90,13 @@ contract PickUp is Ownable {
             s_foodPlaces[msg.sender].location = "default location";
         }
         // add a new pending request
-        s_deliveryRequests.push(
-            Request(msg.sender, s_foodPlaces[msg.sender].name, _amountInKG, ++i_numOfRequests)
+        Request memory newRequest = Request(
+            msg.sender,
+            s_foodPlaces[msg.sender].name,
+            _amountInKG,
+            i_numOfRequests
         );
+        s_deliveryRequests.push(newRequest);
         // trigger an event for the new delivery request
         emit NewRequest(msg.sender, _amountInKG, i_numOfRequests);
     }
@@ -104,7 +108,7 @@ contract PickUp is Ownable {
         require(s_deliveryRequests.length > 0, "No pending requests");
         IDonate donate = IDonate(s_addressDonate);
         Request memory request = s_deliveryRequests[0];
-        console.log("request", request);
+        console.log("request", request.amountInKG);
         uint256 i = 0;
         uint256 withdrawn = 0;
         uint256 cost = 25; // placeholder value for funding a delivery request
