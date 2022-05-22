@@ -12,6 +12,7 @@ interface IDonate {
     function getAddressToDonatorData(address _donator) external view returns (string memory, string memory, string memory);
     function getIdToAddress(uint256 id) external view returns (address);
     function withdraw(address _donator, uint256 _amount) external payable returns(uint256);
+    function getEntries() external view returns (uint256);
 }
 
 contract Donate is Ownable {
@@ -25,6 +26,7 @@ contract Donate is Ownable {
     uint256 public constant MINIMUM_USD = 10 * 10**18;
     address payable private immutable i_owner;
     address private s_pickMe;
+    address private s_dlottery;
     uint256 public s_totalDonators;
     uint256 public s_totalDonations;
     uint256 public s_entries;
@@ -112,6 +114,14 @@ contract Donate is Ownable {
 
      function setAddress(address _addressDonate) external onlyOwner { 
         s_pickMe = _addressDonate;
+    }
+
+     function setLotteryAddress(address _addressDonate) external onlyOwner { 
+        s_dlottery = _addressDonate;
+    }
+
+    function getEntries() external view returns (uint256) {
+        return s_entries;
     }
 
     function withdraw(address _donator, uint256 _amount) external payable returns(uint256) {

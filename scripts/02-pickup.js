@@ -8,7 +8,7 @@ async function main() {
 
   await pickup.deployed()
 
-  console.log("Donate deployed to:", pickup.address)
+  console.log("PickUp deployed to:", pickup.address)
 }
 
 main()
