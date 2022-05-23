@@ -1,10 +1,17 @@
 import React from "react";
 import "./Rankings.css";
+import bg from "../images/pexels-donate.png"
 
 const Rankings = () => {
   return (
     <>
-      <div className="pageIdentify">Top Donator of the Month:</div>
+      <div className="bgcontainer">
+        <div
+          className="imgcontainer"
+          style={{ backgroundImage: `url(${bg})` }}
+        ></div>
+      </div>
+      <div className="pageIdentify">Top Food Donator of the Month:</div>
       <div className="bottomHeader">Baskin Robbins!</div>
       <div className="longBodyText">
         Congratulations to Baskin Robbins for leading the
@@ -49,22 +56,22 @@ const Rankings = () => {
         </tr>
         <tr>
           <td>7</td>
-          <td>Wendy's</td>
+          <td>Wendy's Plums</td>
           <td>190</td>
         </tr>
         <tr>
           <td>8</td>
-          <td>Popeyes</td>
+          <td>JackTea</td>
           <td>189</td>
         </tr>
         <tr>
           <td>9</td>
-          <td>McDonaldees</td>
+          <td>Pickle Dane</td>
           <td>166</td>
         </tr>
         <tr>
           <td>10</td>
-          <td>Wendy's</td>
+          <td>Mackintech</td>
           <td>144</td>
         </tr>
       </table>

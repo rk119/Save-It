@@ -32,7 +32,7 @@ const Restaurant = () => {
           <div className="col">
             <div className="rmakeAD">
               <div className="rmakeADHeader">Donate Food</div>
-              <div className="rmakeADSub">Specify the amount in grams (g)</div>
+              <div className="rmakeADSub">Specify the amount in kilograms (kg)</div>
               <form>
                 <div className="mb-3">
                   <input

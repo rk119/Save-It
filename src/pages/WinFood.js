@@ -13,7 +13,7 @@ const WinFood = () => {
       </div>
       <div className="mainHeader">Win Free Food!</div>
       <div className="longBodyText">
-        All our donators automatically get added to a lottery. Every month a
+        All donators automatically get added to a lottery. Every month a
         random winner will be selected using Chainlink's VRF service. The winner
         will be gifted free food for a day. Scrumptious!*
       </div>

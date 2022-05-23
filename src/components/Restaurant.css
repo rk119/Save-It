@@ -32,14 +32,14 @@
   height: 250px;
   border-radius: 25px;
   background-color: rgb(246, 252, 255);
-  border: 3px solid rgb(210, 210, 210);
+  border: 3px solid rgb(244, 238, 238);
   padding: 10px;
   justify-content: center;
   align-items: center;
 }
 
 .rdashboardHeader {
-  font-size: 30px;
+  font-size: 50px;
   font-weight: 500;
   align-items: center;
   text-align: center;
@@ -56,7 +56,7 @@
   width: 93%;
   border-radius: 25px;
   background-color: rgb(246, 252, 255);
-  border: 3px solid rgb(210, 210, 210);
+  border: 3px solid rgb(244, 238, 238);
   padding: 10px;
   justify-content: center;
   align-items: center;
@@ -66,7 +66,7 @@
   display: flex;
   height: 100px;
   border-radius: 25px;
-  border: 3px solid rgb(210, 210, 210);
+  border: 3px solid rgb(244, 238, 238);
   justify-content:end;
   padding: 10px;
   align-items:center;
