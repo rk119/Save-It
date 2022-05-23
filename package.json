@@ -1,5 +1,6 @@
 {
-    "name": "hardhat-project",
+    "name": "save-it",
+    "version": "0.1.0",
     "scripts": {
         "compile": "hardhat compile",
         "test": "hardhat test test/unit/*_test.js --network hardhat",
@@ -7,7 +8,10 @@
         "lint": "solhint 'contracts/*.sol'",
         "lint:fix": "solhint 'contracts/**/*.sol' --fix",
         "coverage": "hardhat coverage --solcoverjs ./.solcover.js",
-        "fuzzing": "docker run -it --rm -v $PWD:/src trailofbits/eth-security-toolbox"
+        "fuzzing": "docker run -it --rm -v $PWD:/src trailofbits/eth-security-toolbox",
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "eject": "react-scripts eject"
     },
     "license": "MIT",
     "dependencies": {
@@ -26,14 +30,53 @@
         "chai-bignumber": "3.0.0",
         "dotenv": "^10.0.0",
         "ethereum-waffle": "^3.4.0",
-        "ethers": "^5.5.3",
         "hardhat": "^2.9.6",
         "hardhat-contract-sizer": "^2.4.0",
         "hardhat-deploy": "^0.9.29",
         "hardhat-gas-reporter": "^1.0.7",
-        "solidity-coverage": "^0.7.18"
+        "solidity-coverage": "^0.7.18",
+        "@testing-library/jest-dom": "^5.16.2",
+        "@testing-library/react": "^12.1.2",
+        "@testing-library/user-event": "^13.5.0",
+        "antd": "^4.18.7",
+        "assert": "^2.0.0",
+        "crypto-browserify": "^3.12.0",
+        "https-browserify": "^1.0.0",
+        "google-maps-react": "^2.0.6",
+        "moralis": "^1.3.2",
+        "os-browserify": "^0.3.0",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "react-moralis": "^1.3.1",
+        "react-router-dom": "6",
+        "react-scripts": "4.0.0",
+        "bootstrap": "^5.1.3",
+        "ethers": "^5.6.6",
+        "stream-browserify": "^3.0.0",
+        "stream-http": "^3.2.0",
+        "url": "^0.11.0",
+        "web-vitals": "^2.1.4",
+        "web3uikit": "^0.1.75"
     },
     "mocha": {
         "timeout": 10000000
+    },
+    "eslintConfig": {
+        "extends": [
+          "react-app",
+          "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
     }
 }
