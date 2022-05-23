@@ -96,6 +96,16 @@ contract Donate is Ownable {
         emit DonationAccepted(msg.sender, msg.value);
     }
 
+    function withdraw(address _donator, uint256 _amount) external payable returns(uint256) {
+        require(msg.sender == i_owner || msg.sender == s_pickMe, "Not the owner");
+        require(s_addressToDonatorData[_donator].amount >= _amount, "Can't withdraw more than donated amount!");
+        s_addressToDonatorData[_donator].amount = s_addressToDonatorData[_donator].amount - _amount;
+        payable(i_owner).transfer(_amount);
+        return _amount;
+    }
+
+    /* getter functions */
+
     function getDonator(uint256 _index) external view returns (address) {
         return s_donators[_index];
     }
@@ -112,23 +122,18 @@ contract Donate is Ownable {
         return s_idToAddress[id];
     }
 
-     function setAddress(address _addressDonate) external onlyOwner { 
-        s_pickMe = _addressDonate;
-    }
-
-     function setLotteryAddress(address _addressDonate) external onlyOwner { 
-        s_dlottery = _addressDonate;
-    }
-
     function getEntries() external view returns (uint256) {
         return s_entries;
     }
 
-    function withdraw(address _donator, uint256 _amount) external payable returns(uint256) {
-        require(msg.sender == i_owner || msg.sender == s_pickMe, "Not the owner");
-        require(s_addressToDonatorData[_donator].amount >= _amount, "Can't withdraw more than donated amount!");
-        s_addressToDonatorData[_donator].amount = s_addressToDonatorData[_donator].amount - _amount;
-        payable(i_owner).transfer(_amount);
-        return _amount;
+    /* setter functions */
+
+     function setAddress(address _addressDonate) external onlyOwner { 
+        s_pickMe = _addressDonate;
     }
+
+    function setLotteryAddress(address _addressDonate) external onlyOwner { 
+        s_dlottery = _addressDonate;
+    }
+
 }
