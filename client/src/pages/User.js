@@ -1,6 +1,7 @@
 import React from "react"
 import "./User.css"
 import { ConnectButton } from "web3uikit"
+import bg from "../images/pexels-support.png"
 
 const User = () => {
   const cards = [
@@ -18,10 +19,16 @@ const User = () => {
 
   return (
     <>
+      <div className="bgcontainer">
+        <div
+          className="imgcontainer"
+          style={{ backgroundImage: `url(${bg})` }}
+        ></div>
+      </div>
       <div className="connectWallet">
         <ConnectButton moralisAuth={false} />
       </div>
-      <div className="pageIdentify">Select User</div>
+      <div className="uspageIdentify">Select User</div>
       <div className="cardContainer">
         <div className="customCard">
           {cards.map((e) => {
@@ -40,7 +47,7 @@ const User = () => {
       </div>
 
       <div>
-        <div className="mainHeader">Support the Cause</div>
+        <div className="usmainHeader">Support the Cause</div>
         <div className="longBodyText">
           Donators can either donate Ethereum to fund this project. Established
           food organizations can also donate some of their food.

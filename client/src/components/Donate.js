@@ -4,7 +4,7 @@ import "../pages/User.css"
 import { ethers } from "ethers"
 import donateinfo from "../contractinfo/donateinfo"
 import { ConnectButton } from "web3uikit"
-import { useMoralis } from "react-moralis"
+import bg from "../images/pexels-donate.png"
 
 const Donate = () => {
   const provider = new ethers.providers.Web3Provider(window.ethereum)
@@ -108,6 +108,12 @@ const Donate = () => {
 
   return (
     <>
+      <div className="bgcontainer">
+        <div
+          className="imgcontainer"
+          style={{ backgroundImage: `url(${bg})` }}
+        ></div>
+      </div>
       <div className="connectWallet">
         <ConnectButton
           moralisAuth={false}

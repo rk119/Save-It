@@ -1,10 +1,16 @@
 import React from "react"
 import "./WinFood.css"
-import bg from "../images/pexels-foodie-home.png"
+import bg from "../images/pexels-donate.png"
 
 const WinFood = () => {
   return (
     <>
+      <div className="bgcontainer">
+        <div
+          className="imgcontainer"
+          style={{ backgroundImage: `url(${bg})` }}
+        ></div>
+      </div>
       <div className="mainHeader">Win Free Food!</div>
       <div className="longBodyText">
         All our donators automatically get added to a lottery. Every month a

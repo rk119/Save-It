@@ -6,6 +6,7 @@
   height: 500px;
   /* width: 95%; */
   border-radius: 25px;
+  background-color: rgb(246, 252, 255);
   border: 3px solid rgb(210, 210, 210);
   padding: 10px;
   justify-content: center;
@@ -31,6 +32,7 @@
 .dashboard {
   height: 200px;
   border-radius: 25px;
+  background-color: rgb(246, 252, 255);
   border: 3px solid rgb(210, 210, 210);
   padding: 10px;
   justify-content: center;
@@ -53,6 +55,7 @@
 .stats {
   height: 270px;
   border-radius: 25px;
+  background-color: rgb(246, 252, 255);
   border: 3px solid rgb(210, 210, 210);
   padding: 10px;
   justify-content: center;
