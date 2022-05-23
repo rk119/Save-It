@@ -6,6 +6,7 @@
   padding: 3px 50px;
   background: #ffffff;
   border-bottom: 3px solid rgb(247, 244, 244);
+  border-top: 3px solid rgb(247, 244, 244);
   position: fixed;
   /* background-image: linear-gradient(180deg, rgb(255, 255, 255), rgb(243, 241, 241)); */
 }

@@ -3,9 +3,9 @@
   padding: 8px;
 }
 
-#customers tr:nth-child(even) {
-    background-color: #f2f2f2;
-    width: 50%;
+#customers {
+    background-color: #ecf2f5;
+    /* width: 50%; */
 }
 
 #customers tr:hover {background-color: #ddd;}

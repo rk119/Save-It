@@ -54,7 +54,7 @@ const User = () => {
         </div>
       </div>
       <div className="bottomBox">
-        <div className="cardsSub">
+        <div className="bcardsSub">
           * If you are an established food organization, you can offer to donate
           your leftover food. Only food that is not expired can be donated.
         </div>
