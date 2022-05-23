@@ -48,7 +48,7 @@
 
 .selectCard:hover {
     cursor: pointer;
-    background-color: rgb(61, 60, 60);;
+    background-color: rgb(57, 53, 53);
     color: rgb(76, 206, 115);
 }
 
@@ -67,7 +67,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  color: rgb(179, 179, 179);;
+  color: rgb(241, 231, 231);
   font-weight: bold;
   font-size: 50px;
 }
