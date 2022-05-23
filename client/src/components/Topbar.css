@@ -1,0 +1,35 @@
+.topbarContent {
+  padding-left: 3%;
+  padding-right: 3%;
+}
+
+.logoNav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+img.logoNavi {
+  width: 25px;
+  margin-bottom: 0px;
+}
+
+.menuItems {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  /* margin-top: 10px; */
+  align-items: center;
+  font-weight: 700;
+  font-size: 20px;
+  padding: 10px;
+  border-radius: 1000px;
+  color: rgb(104, 95, 95) !important;
+  text-decoration: none !important;
+}
+
+.menuItems:hover {
+  cursor: pointer;
+  background-color: rgb(248, 248, 248);
+  color: rgb(249, 105, 112) !important;
+}
