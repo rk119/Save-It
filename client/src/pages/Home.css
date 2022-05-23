@@ -1,0 +1,60 @@
+.bgcontainer {
+  position: absolute;
+  width: 100%;
+  margin-left: -100px;
+}
+
+.imgcontainer {
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-size: cover;
+  z-index: -999;
+  /* opacity: 95%; */
+  filter: blur(8px);
+}
+
+.hmainHeader {
+  display: flex;
+  justify-content: center;
+  color: rgb(48, 219, 96);
+  align-items: center;
+  font-weight: bold;
+  font-size: 50px;
+}
+
+.hheaderSubtext {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 500;
+  font-size: 25px;
+  color: rgb(246, 238, 238);
+  padding: 10px;
+}
+
+.hlongBodyText {
+  /* display: flex;
+  justify-content: right;
+  align-items: right;*/
+  text-align: center; 
+  font-weight: 500;
+  font-size: 20px;
+  color: rgb(255, 252, 252);
+  /* padding-bottom: 3%;
+  padding-left: 20%;
+  padding-right: 20%; */
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: justify;
+  text-align: justify;
+}
+
+img.logoImg {
+  width: 150px;
+  margin-bottom: 0px;
+}

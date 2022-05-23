@@ -1,0 +1,85 @@
+.userBG {
+    background-image: rgb(1, 1, 1);
+}
+
+.connectWallet {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cardContainer {
+    padding-left: 25px;
+    padding-right: 25px;
+}
+
+.customCard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-inline-start: 100px;
+    padding-inline-end: 100px;
+}
+
+.selectCard {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    width: 360px;
+    height: 220px;
+    background-color: #fbfbfb;
+    border-radius: 25px;
+    border: 3px solid rgb(210, 210, 210);
+}
+
+.userCardText {
+    font-size: 40px;
+    font-weight: 500;
+    color: rgb(210, 104, 110);
+}
+
+.selectCard:hover {
+    cursor: pointer;
+    background-color: #f0f3ff;
+    color: rgb(76, 206, 115);
+}
+
+.cardsSub {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 50px;
+    font-size: 15px;
+    font-weight: 400;
+    color: rgb(179, 179, 179);
+    text-align: center;
+}
+
+.line {
+    border-top: 1px solid rgb(230, 229, 229);
+    margin-bottom: 0px;
+}
+
+.line2 {
+    border-left: 2px solid rgb(255, 255, 255);
+    padding-left: 50px;
+    height: 600px;
+}
+
+.userContent {
+    display: flex;
+    justify-content: start;
+    height: 100%;
+}
+
+.userContentPage {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    width: 50%;
+    border-radius: 10px;
+    background-color: rgb(252, 253, 255);
+    border-radius: 25px;
+    border: 3px solid rgb(210, 210, 210);
+}

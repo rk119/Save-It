@@ -1,0 +1,14 @@
+.countdownText {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: justify;
+    text-justify: inter-word;
+    font-weight: 500;
+    font-size: 30px;
+    color: rgb(109, 109, 109);
+    padding-top: 1%;
+    padding-bottom: 3%;
+    padding-left: 20%;
+    padding-right: 20%;
+}
