@@ -48,9 +48,7 @@ For the client side, we used React, Bootstrap, and Web3UIKit to build the fronte
 
 ## Our goal
 We recognize the persisting global issue of food wastage and the potential that blockchain technology
-has for providing the reassurance that an action taken will be seen through till the end, no questsions
-asked. Every small food donation made will truly have an influence in reducing and eventually completely 
-eliminating food wastage.
+has for providing the reassurance that an action taken will be seen through till the end. Every small food donation made will truly have an influence in reducing food wastage.
 
 ---
 ---
