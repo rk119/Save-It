@@ -13,6 +13,7 @@ interface IDonate {
     function getIdToAddress(uint256 id) external view returns (address);
     function withdraw(address _donator, uint256 _amount) external payable returns(uint256);
     function getEntries() external view returns (uint256);
+    function resetEntries() external;
 }
 
 contract Donate is Ownable {
@@ -128,12 +129,16 @@ contract Donate is Ownable {
 
     /* setter functions */
 
-     function setAddress(address _addressDonate) external onlyOwner { 
+     function setAddress(address _addressDonate) external { 
         s_pickMe = _addressDonate;
     }
 
-    function setLotteryAddress(address _addressDonate) external onlyOwner { 
+    function setLotteryAddress(address _addressDonate) external { 
         s_dlottery = _addressDonate;
+    }
+
+    function resetEntries() external {
+        s_entries = 0;
     }
 
 }

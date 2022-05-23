@@ -14,13 +14,11 @@ error Lottery__SendMoreToEnterLottery();
 error Lottery__LotteryNotOpen();
 
 contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
-    /* Type declarations */
     enum LotteryState {
         OPEN,
         CALCULATING
     }
-    /* State variables */
-    // Chainlink VRF Variables
+
     VRFCoordinatorV2Interface private immutable i_vrfCoordinator;
     uint64 private immutable i_subscriptionId;
     bytes32 private immutable i_gasLane;
@@ -28,17 +26,16 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
     uint32 private constant NUM_WORDS = 1;
 
-    // Lottery Variables
     uint256 private immutable i_interval;
     uint256 private s_lastTimeStamp;
     address private s_recentWinner;
     address private s_currentWinner;
     uint256 private i_entranceFee;
+    IDonate private donate;
     address payable[] private s_donators;
     Foodie[] private s_foodies;
     LotteryState private s_lotteryState;
 
-    /* Events */
     event RequestedLotteryWinner(uint256 indexed requestId);
     event LotteryEnter(address indexed player);
     event WinnerPicked(address indexed player);
@@ -71,26 +68,11 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     function addFoodie(string memory _food) public {
         s_foodies.push(Foodie(_food, msg.sender));
         emit newFoodieAdded(_food);
+    } 
+
+    function setAddress(address _addressDonate) external { 
+        donate = IDonate(_addressDonate);
     }
-
-    // function enterLottery() public payable {
-    //     // require(msg.value >= i_entranceFee, "Not enough value sent");
-    //     // require(s_lotteryState == LotteryState.OPEN, "Lottery is not open");
-    //     if (msg.value < i_entranceFee) {
-    //         revert Lottery__SendMoreToEnterLottery();
-    //     }
-    //     if (s_lotteryState != LotteryState.OPEN) {
-    //         revert Lottery__LotteryNotOpen();
-    //     }
-    //     s_donators.push(payable(msg.sender));
-    //     // Emit an event when we update a dynamic array or mapping
-    //     // Named events with the function name reversed
-    //     emit LotteryEnter(msg.sender);
-    // }
-
-    // function setAddress(address _addressDonate) external onlyOwner { 
-    //     s_addressDonate = _addressDonate;
-    // }
 
     function checkUpkeep(bytes memory /* checkData */)
         public
@@ -99,16 +81,11 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         returns (bool upkeepNeeded, bytes memory /* performData */) {
         bool isOpen = LotteryState.OPEN == s_lotteryState;
         bool timePassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
-        bool hasPlayers = s_donators.length > 0;
-        bool hasBalance = address(this).balance > 0;
-        upkeepNeeded = (timePassed && isOpen && hasBalance && hasPlayers);
-        return (upkeepNeeded, "0x0"); // can we comment this out?
+        bool hasPlayers = donate.getEntries() > 0;
+        upkeepNeeded = (timePassed && isOpen && hasPlayers);
+        return (upkeepNeeded, "0x0");
     }
 
-    /**
-     * @dev Once `checkUpkeep` is returning `true`, this function is called
-     * and it kicks off a Chainlink VRF call to get a random winner.
-     */
     function performUpkeep(
         bytes calldata /* performData */
     ) external override {
@@ -117,7 +94,7 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         if (!upkeepNeeded) {
             revert Lottery__UpkeepNotNeeded(
                 address(this).balance,
-                s_donators.length,
+                donate.getEntries(),
                 uint256(s_lotteryState)
             );
         }
@@ -132,25 +109,21 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         emit RequestedLotteryWinner(requestId);
     }
 
-    /**
-     * @dev This is the function that Chainlink VRF node
-     * calls to send the money to the random winner.
-     */
     function fulfillRandomWords(
         uint256, /* requestId */
         uint256[] memory randomWords
     ) internal override {
-        uint256 indexOfWinner = randomWords[0] % s_donators.length;
-        address payable recentWinner = s_donators[indexOfWinner];
+        uint256 indexOfWinner = randomWords[0] % donate.getEntries();
+        address recentWinner = donate.getIdToAddress(indexOfWinner);
         s_recentWinner = recentWinner;
-        s_donators = new address payable[](0);
+        donate.resetEntries();
         s_lotteryState = LotteryState.OPEN;
         s_lastTimeStamp = block.timestamp;
-        (bool success, ) = recentWinner.call{value: address(this).balance}("");
+        // (bool success, ) = recentWinner.call{value: address(this).balance}("");
         // require(success, "Transfer failed");
-        if (!success) {
-            revert Lottery__TransferFailed();
-        }
+        // if (!success) {
+        //     revert Lottery__TransferFailed();
+        // }
         emit WinnerPicked(recentWinner);
     }
 
@@ -173,7 +146,7 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     }
 
     function getDonator(uint256 index) public view returns (address) {
-        return s_donators[index];
+        return donate.getIdToAddress(index);
     }
 
     function getLastTimeStamp() public view returns (uint256) {
@@ -184,12 +157,8 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         return i_interval;
     }
 
-    function getEntranceFee() public view returns (uint256) {
-        return i_entranceFee;
-    }
-
     function getNumberOfDonators() public view returns (uint256) {
-        return s_donators.length;
+        return donate.getEntries();
     }
 
     function getNumberOfFoodies() public view returns (uint256) {
