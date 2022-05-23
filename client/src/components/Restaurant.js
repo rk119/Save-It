@@ -4,11 +4,18 @@ import "../pages/User.css"
 import { ethers } from "ethers"
 import pickupinfo from "../contractinfo/pickupinfo"
 import { ConnectButton } from "web3uikit"
+import bg from "../images/pexels-donate.png"
 
 const Restaurant = () => {
 
   return (
     <>
+      <div className="bgcontainer">
+        <div
+          className="imgcontainer"
+          style={{ backgroundImage: `url(${bg})` }}
+        ></div>
+      </div>
       <div className="connectWallet">
         <ConnectButton moralisAuth={false} />
       </div>
