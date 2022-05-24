@@ -2,8 +2,8 @@ const { assert, expect } = require("chai")
 const { network, deployments, ethers } = require("hardhat")
 
 describe("PickUp", async () => {
-    let pickup, deployer, fp1, fp2, fp3, fp4 // fp = food place
-
+    let pickup, deployer, fp1, fp2, fp3, fp4, d1, d2, d3
+    // fp = food place, d = donator
     beforeEach(async () => {
         accounts = await ethers.getSigners()
         ;[deployer, fp1, fp2, fp3, fp4, d1, d2, d3] = [
@@ -123,25 +123,18 @@ describe("PickUp", async () => {
         // SUCCESS: parameters are valid
         it("should be successful when params are valid", async () => {
             await expect(pickup.connect(fp2).requestDelivery(22))
-                .to.emit(pickup, "NewRequest")
-                .withArgs(fp2.address, 22, 5)
+            .to.emit(pickup, "NewRequest").withArgs(fp2.address, 22, 5)
             await expect(pickup.connect(fp3).requestDelivery(43))
-                .to.emit(pickup, "NewRequest")
-                .withArgs(fp3.address, 43, 6)
+            .to.emit(pickup, "NewRequest").withArgs(fp3.address, 43, 6)
             await expect(pickup.connect(fp4).requestDelivery(39))
-                .to.emit(pickup, "NewRequest")
-                .withArgs(fp4.address, 39, 7)
+            .to.emit(pickup, "NewRequest").withArgs(fp4.address, 39, 7)
             await expect(pickup.connect(fp2).requestDelivery(32))
-                .to.emit(pickup, "NewRequest")
-                .withArgs(fp2.address, 32, 8)
+            .to.emit(pickup, "NewRequest").withArgs(fp2.address, 32, 8)
         })
         // FAILURE: parameters invalid or empty
         it("fails if the params are invalid", async () => {
-            await expect(
-                pickup.connect(fp2).requestDelivery(420)
-            ).to.be.revertedWith(
-                "Invalid. Specified food amount can not be transported"
-            )
+            await expect(pickup.connect(fp2).requestDelivery(420))
+            .to.be.revertedWith("Invalid. Specified food amount can not be transported")
         })
     })
 
@@ -161,21 +154,14 @@ describe("PickUp", async () => {
         // SUCCESS: parameters are valid
         it("should be successful when params are valid", async () => {
             await expect(pickup.connect(fp2).requestDelivery(22))
-                .to.emit(pickup, "NewRequest")
-                .withArgs(fp2.address, 22, 2)
+            .to.emit(pickup, "NewRequest").withArgs(fp2.address, 22, 2)
         })
         // FAILURE: parameters invalid or empty
         it("fails if the params are invalid", async () => {
-            await expect(
-                pickup.connect(fp2).requestDelivery(500)
-            ).to.be.revertedWith(
-                "Invalid. Specified food amount can not be transported"
-            )
-            await expect(
-                pickup.connect(fp3).requestDelivery(0)
-            ).to.be.revertedWith(
-                "Invalid. Specified food amount can not be transported"
-            )
+            await expect(pickup.connect(fp2).requestDelivery(500))
+            .to.be.revertedWith("Invalid. Specified food amount can not be transported")
+            await expect(pickup.connect(fp3).requestDelivery(0))
+            .to.be.revertedWith("Invalid. Specified food amount can not be transported")
         })
     })
 
@@ -189,13 +175,7 @@ describe("PickUp", async () => {
             donate = await ethers.getContract("Donate")
             await pickup.setAddress(donate.address)
             await donate.setAddress(pickup.address)
-            // originalBalance = await deployer.getBalance()
-            // console.log((await donate.getConversionRate(originalBalance)).toString())
             donation = await donate.getUsdAmountInEth(10)
-            // register 3 different donators
-            await donate.connect(d1).registerDonator("RifRof", "25.197197", "55.274376")
-            await donate.connect(d2).registerDonator("Moses", "24.197197", "54.274376")
-            await donate.connect(d3).registerDonator("Haya", "23.197197", "53.274376")
             // a total of 30 USD gets funded into the donations by the 3 donators
             await donate.connect(d1).donate({ value: donation })
             await donate.connect(d2).donate({ value: donation })
@@ -203,12 +183,8 @@ describe("PickUp", async () => {
             // a food place requests a food delivery
             await pickup.connect(fp1).requestDelivery(30)
             // the contract owner (deployer) funds the delivery
-            // await expect(pickup.connect(deployer).fundDelivery()).to.emit(pickup, "RevertTest")
-            originalBalance = await deployer.getBalance()
             // console.log((await donate.getConversionRate(originalBalance)).toString())
-            // await pickup.fundDelivery()
-            // console.log((await donate.getConversionRate(await donate.getAddressToAmount(d1.address))).toString())
-            // donationAmount = await donate.getConversionRate(await donate.getAddressToAmount(d1.address))
+            originalBalance = await deployer.getBalance()
         })
         it("Deducts 25 USD from the donations", async () => {
             await pickup.fundDelivery()
@@ -228,15 +204,53 @@ describe("PickUp", async () => {
             // assert.equal((donationAmount/10**18).toString(), "5")
         })
         it("fails if caller is not owner", async () => {
-            await expect(pickup.connect(d1).fundDelivery()).to.be.revertedWith("Not the owner")
+            expect(pickup.connect(fp1).fundDelivery()).to.be.revertedWith("caller is not the owner")
         })
         it("notifies the donator which restaurant used their donation", async () => {
-            await expect(pickup.fundDelivery()).to.emit(pickup,"RevertTest")
+            expect(await pickup.fundDelivery()).to.emit(pickup,"NotifyDonator")
         })
         it("handles the request", async () => {
-            await pickup.fundDelivery()
+            expect(await pickup.fundDelivery()).to.emit(pickup, "RequestFunded")
+        })
+    })
+
+    describe("Insufficient donations for funding delivery", async () => { 
+        let numOfRequests
+        beforeEach(async () => {
+            // food place requests a delivery when no donations have been made
+            await pickup.connect(fp1).requestDelivery(30)
             numOfRequests = await pickup.numOfRequests()
-            assert.equal(numOfRequests, 0)
+        })
+        it("Rejects the request", async () => { 
+            expect(pickup.fundDelivery()).to.be.revertedWith("Insufficient funds")
+            // number of pending requests remains the same
+            assert.equal(numOfRequests, 1)
+        })
+    })
+
+    describe("removeRequest function testing", async () => {
+        let numOfFoodPlaces, numOfRequests
+        beforeEach(async () => { 
+            // food place requests a delivery
+            await pickup.connect(fp1).requestDelivery(30)
+            await pickup.connect(fp2).requestDelivery(31)
+            await pickup.connect(fp3).requestDelivery(32)
+            numOfFoodPlaces = await pickup.numOfFoodPlaces()
+            numOfRequests = await pickup.numOfHandledRequests()
+        })
+        it("checks all the food places were registered", async () => {
+            // number of pending requests remains the same
+            assert.equal(numOfFoodPlaces, 3)
+        })
+        it("checks all the requests were placed", async () => {
+            // number of pending requests remains the same
+            assert.equal(numOfRequests, 3)
+        })
+        xit("removes a request", async () => { 
+            // number of pending requests remains the same
+            await pickup.removeRequest(0)
+            numOfRequests = await pickup.numOfHandledRequests()
+            assert.equal(numOfFoodPlaces.toNumber(), 2)
         })
     })
 })

@@ -1,13 +1,4 @@
 // SPDX-License-Identifier: MIT
-
-// 1.	Implement a basic pickup.sol.
-// a.	Add tests to see if the accounts balances are deducted correctly
-//      and if u received the correct amount after all the deductions.
-
-// 3.	Then implement cost calculation using the API service.
-// a.	First look for any API that calculates cost between two locations in the US state.
-// b.	Then implement using chainlink API services.
-
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -51,14 +42,6 @@ contract PickUp is Ownable {
     Request[] s_deliveryRequests;
     // a mapping to store all the food places
     mapping(address => FoodPlace) public s_foodPlaces;
-    // to be emitted when a new food place is registered
-    event FoodPlaceRegistered(
-        uint256 id,
-        address owner,
-        string name,
-        string location,
-        bool registered
-    );
     // to be emitted when a new food delivery is requested
     event NewRequest(address requester, uint256 amountInKG, uint256 requestId);
     // to be emitted to notify a donator of their donation usage
@@ -67,7 +50,7 @@ contract PickUp is Ownable {
         uint256 donation,
         string foodPlaceName
     );
-    event RevertTest(uint a);
+    event RequestFunded(address requester, uint index);
 
     constructor() {
         i_owner = msg.sender;
@@ -110,7 +93,7 @@ contract PickUp is Ownable {
     // this section describes owner only methods such as funding
     // and the approval and funding of a food delivery service
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    function fundDelivery() public {
+    function fundDelivery() external onlyOwner returns(uint) {
         require(
             msg.sender == i_owner || msg.sender == s_donate,
             "Not the owner"
@@ -119,10 +102,19 @@ contract PickUp is Ownable {
         Request memory request;
         uint256 requests = s_deliveryRequests.length;
         uint256 cost = 25 * requests; // placeholder value for funding a delivery request
+        uint256 balance = address(donate).balance;
         uint256 i = 0;
         uint256 withdrawn = 0;
         // uint256 cost = calculateCost(d.id, d.amountInKG);
         cost = donate.getUsdAmountInEth(cost);
+        balance = donate.getUsdAmountInEth(balance);
+        if (balance < donate.getUsdAmountInEth(25)) {
+            return 144; // exit code for insufficient funds
+        }
+        require(
+            balance >= donate.getUsdAmountInEth(25),
+            "Insufficient funds"
+        );
         for (uint k = 0; k < requests; k++) {
             request = s_deliveryRequests[k];
             while (cost > 0) {
@@ -134,35 +126,31 @@ contract PickUp is Ownable {
                     }
                     if (amount < cost) {
                         withdrawn = uint(donate.withdraw(donator, amount));
-                        // console.log(
-                        //     donate.getUsdAmountInEth(
-                        //         donate.getAddressToAmount(donator)
-                        //     )
-                        // );
+                        // console.log(donate.getUsdAmountInEth(donate.getAddressToAmount(donator)));
                     }
                     cost -= withdrawn;
                     emit NotifyDonator(donator, withdrawn, request.name);
+                    emit RequestFunded(request.requester, k);
                 }
                 i++;
             }
             removeRequest(k);
+            i_numOfRequests--;
         }
-        emit RevertTest(i);
+        return 1; // exit code for success
     }
 
     /* helper functions */
-    function removeRequest(uint index) public returns (uint) {
+    function removeRequest(uint index) public {
         uint size = s_deliveryRequests.length;
         // exit code 0: no pending requests
         if (size == 0) {
-            return 0;
         }
         if (size > 1) {
             uint newIndex = size - 1;
             s_deliveryRequests[index] = s_deliveryRequests[newIndex];
+            s_deliveryRequests.pop();
         }
-        s_deliveryRequests.pop();
-        return 1; // exit code 1: request was removed
     }
 
     /* setter functions */
@@ -185,6 +173,10 @@ contract PickUp is Ownable {
     }
 
     function numOfRequests() external view returns (uint256) {
+        return i_numOfRequests;
+    }
+
+    function numOfHandledRequests() external view returns (uint256) {
         return s_deliveryRequests.length;
     }
 

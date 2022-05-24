@@ -2,10 +2,11 @@ import React, { useState, useRef, useEffect } from "react"
 import "./Restaurant.css"
 import "../pages/User.css"
 import { ethers } from "ethers"
-import pickupinfo from "../contractinfo/pickupinfo"
-import contractAddresses from "../contractinfo/addresses"
 import { ConnectButton } from "web3uikit"
 import bg from "../images/pexels-donate.png"
+// pickup deployment address and abi 
+import pickupinfo from "../contractinfo/pickupinfo"
+import contractAddresses from "../contractinfo/addresses"
 
 const Restaurant = () => {
   // update the contract address and abi manually

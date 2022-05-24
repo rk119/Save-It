@@ -10,43 +10,6 @@ export default {
       "inputs": [
         {
           "indexed": false,
-          "internalType": "uint256",
-          "name": "id",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "indexed": false,
-          "internalType": "string",
-          "name": "location",
-          "type": "string"
-        },
-        {
-          "indexed": false,
-          "internalType": "bool",
-          "name": "registered",
-          "type": "bool"
-        }
-      ],
-      "name": "FoodPlaceRegistered",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
           "internalType": "address",
           "name": "requester",
           "type": "address"
@@ -116,18 +79,30 @@ export default {
       "inputs": [
         {
           "indexed": false,
+          "internalType": "address",
+          "name": "requester",
+          "type": "address"
+        },
+        {
+          "indexed": false,
           "internalType": "uint256",
-          "name": "a",
+          "name": "index",
           "type": "uint256"
         }
       ],
-      "name": "RevertTest",
+      "name": "RequestFunded",
       "type": "event"
     },
     {
       "inputs": [],
       "name": "fundDelivery",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -160,6 +135,19 @@ export default {
     {
       "inputs": [],
       "name": "numOfFoodPlaces",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "numOfHandledRequests",
       "outputs": [
         {
           "internalType": "uint256",
@@ -205,13 +193,7 @@ export default {
         }
       ],
       "name": "removeRequest",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
