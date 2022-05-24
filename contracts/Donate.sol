@@ -93,6 +93,10 @@ contract Donate is Ownable {
         return s_donators[_index];
     }
 
+    function getDonators() external view returns (uint256) {
+        return s_totalDonators;
+    }
+
     function getAddressToAmount(address _donator) external view returns (uint256) {
         return s_addressToAmount[_donator];
     }

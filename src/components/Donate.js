@@ -2,14 +2,12 @@ import React, { useState, useEffect } from "react"
 import "./Donate.css"
 import "../pages/User.css"
 import { ethers } from "ethers"
-import donateinfo from "../contractinfo/donateinfo"
-import contractAddresses from "../contractinfo/addresses"
 import { ConnectButton } from "web3uikit"
 import bg from "../images/pexels-donate.png"
-import { useWeb3Contract, useMoralis } from "react-moralis"
+import donateinfo from "../contractinfo/donateinfo"
+import contractAddresses from "../contractinfo/addresses"
 
 const Donate = () => {
-  const { isWeb3Enabled } = useMoralis()
   const provider = new ethers.providers.Web3Provider(window.ethereum)
   const address = contractAddresses.donate
   const abi = donateinfo.abi
@@ -17,78 +15,37 @@ const Donate = () => {
   const contract = new ethers.Contract(address, abi, signer)
 
   // state hooks
+  const [users, setUsers] = useState()
   const [balance, setBalance] = useState()
   const [depositValue, setDepositValue] = useState("")
-  const [numOfDonators, setNumOfDonators] = useState("0")
-  const [donationValue, setDonationValue] = useState("0")
-
-  /* make a donation */
-  const {
-    runContractFunction: donate,
-    data: enterTxResponse,
-    isLoading,
-    isFetching,
-  } = useWeb3Contract({
-    abi: abi,
-    contractAddress: address,
-    functionName: "donate",
-    msgValue: donationValue,
-    params: {
-      secondAgos: [10],
-    },
-  })
-
-  const { runContractFunction: s_totalDonators } = useWeb3Contract({
-    abi: abi,
-    contractAddress: address,
-    functionName: "s_totalDonators",
-    params: {},
-  })
-
-  async function updateUIValues() {
-    let numOfDonators = (await s_totalDonators()).toString()
-    setNumOfDonators(numOfDonators)
-  }
 
   useEffect(() => {
-    if (isWeb3Enabled) {
-      updateUIValues()
-    }
-
-    const connectWallet = async () => {
-      await provider.send("eth_requestAccounts", [])
+    const requestAccounts = async () => {
+      await provider.send("eth_requestAccounts", []);
     }
 
     const getBalance = async () => {
-      const balance = await provider.getBalance(address)
-      const balanceFormatted = ethers.utils.formatEther(balance)
-      setBalance(balanceFormatted)
-      ethers.utils.formatEther(balance)
+      const balance = await provider.getBalance(address);
+      setBalance(ethers.utils.formatEther(balance));
     }
 
-    connectWallet().catch(console.error)
+    requestAccounts().catch(console.error)
     getBalance().catch(console.error)
-  }, [isWeb3Enabled])
+  }, [])
 
   const handleDepositChange = (e) => {
     setDepositValue(e.target.value)
   }
 
   const handleDepositSubmit = async (e) => {
-    e.preventDefault()
-    console.log(depositValue)
-    const ethValue = await ethers.utils.parseEther(depositValue)
-    const depositEth = await contract.donate({ value: ethValue })
-    await depositEth.wait()
-    const balance = await provider.getBalance(address)
-    const balanceFormatted = ethers.utils.formatEther(balance)
-    setBalance(balanceFormatted)
-    setDepositValue(0)
-  }
-
-  const handleSuccess = async (tx) => {
-    await tx.wait(1)
-    updateUIValues()
+    e.preventDefault();
+    const ethValue = ethers.utils.parseEther(depositValue)
+    const deposit = await contract.donate({ value: ethValue });
+    const users = await contract.getDonators()
+    await deposit.wait();
+    const balance = await provider.getBalance(address);
+    setBalance(ethers.utils.formatEther(balance));
+    setUsers(users.toNumber())
   }
 
   const notifs = [
@@ -128,7 +85,7 @@ const Donate = () => {
               <div className="dashboardText">
                 Total Donations: {balance} ETH
               </div>
-              <div className="dashboardText">Number of users: </div>
+              <div className="dashboardText">Number of users: {users} </div>
             </div>
             <div className="space"></div>
             <div className="stats">
@@ -165,15 +122,7 @@ const Donate = () => {
                     value={depositValue}
                   />
                 </div>
-                <button type="submit" className="btn btn-primary"
-                  onClick={async () =>
-                    await donate({
-                      // onComplete:
-                      // onError:
-                      onSuccess: handleSuccess,
-                    })
-                  }
-                disabled={isLoading || isFetching}>
+                <button type="submit" className="btn btn-primary">
                   Donate
                 </button>
               </form>

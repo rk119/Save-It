@@ -1,386 +1,367 @@
 export default {
   abi: [
     {
-      inputs: [
+      "inputs": [
         {
-          internalType: "address",
-          name: "_priceFeed",
-          type: "address",
-        },
+          "internalType": "address",
+          "name": "_priceFeed",
+          "type": "address"
+        }
       ],
-      stateMutability: "nonpayable",
-      type: "constructor",
+      "stateMutability": "nonpayable",
+      "type": "constructor"
     },
     {
-      anonymous: false,
-      inputs: [
+      "anonymous": false,
+      "inputs": [
         {
-          indexed: true,
-          internalType: "address",
-          name: "donor",
-          type: "address",
+          "indexed": true,
+          "internalType": "address",
+          "name": "donor",
+          "type": "address"
         },
         {
-          indexed: false,
-          internalType: "uint256",
-          name: "amount",
-          type: "uint256",
-        },
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
       ],
-      name: "DonationAccepted",
-      type: "event",
+      "name": "DonationAccepted",
+      "type": "event"
     },
     {
-      anonymous: false,
-      inputs: [
+      "anonymous": false,
+      "inputs": [
         {
-          indexed: false,
-          internalType: "uint256",
-          name: "amount",
-          type: "uint256",
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
         },
         {
-          indexed: false,
-          internalType: "string",
-          name: "name",
-          type: "string",
+          "indexed": false,
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
         },
         {
-          indexed: false,
-          internalType: "string",
-          name: "latitude",
-          type: "string",
+          "indexed": false,
+          "internalType": "string",
+          "name": "latitude",
+          "type": "string"
         },
         {
-          indexed: false,
-          internalType: "string",
-          name: "longitude",
-          type: "string",
-        },
+          "indexed": false,
+          "internalType": "string",
+          "name": "longitude",
+          "type": "string"
+        }
       ],
-      name: "DonatorRegistered",
-      type: "event",
+      "name": "DonatorRegistered",
+      "type": "event"
     },
     {
-      anonymous: false,
-      inputs: [
+      "anonymous": false,
+      "inputs": [
         {
-          indexed: true,
-          internalType: "address",
-          name: "previousOwner",
-          type: "address",
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
         },
         {
-          indexed: true,
-          internalType: "address",
-          name: "newOwner",
-          type: "address",
-        },
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
       ],
-      name: "OwnershipTransferred",
-      type: "event",
+      "name": "OwnershipTransferred",
+      "type": "event"
     },
     {
-      inputs: [],
-      name: "MINIMUM_USD",
-      outputs: [
+      "inputs": [],
+      "name": "MINIMUM_USD",
+      "outputs": [
         {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [],
-      name: "donate",
-      outputs: [],
-      stateMutability: "payable",
-      type: "function",
+      "inputs": [],
+      "name": "donate",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
     },
     {
-      inputs: [
+      "inputs": [
         {
-          internalType: "address",
-          name: "_donator",
-          type: "address",
-        },
+          "internalType": "address",
+          "name": "_donator",
+          "type": "address"
+        }
       ],
-      name: "getAddressToAmount",
-      outputs: [
+      "name": "getAddressToAmount",
+      "outputs": [
         {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [
+      "inputs": [
         {
-          internalType: "address",
-          name: "_donator",
-          type: "address",
-        },
+          "internalType": "uint256",
+          "name": "_ethAmount",
+          "type": "uint256"
+        }
       ],
-      name: "getAddressToDonatorData",
-      outputs: [
+      "name": "getConversionRate",
+      "outputs": [
         {
-          internalType: "string",
-          name: "",
-          type: "string",
-        },
-        {
-          internalType: "string",
-          name: "",
-          type: "string",
-        },
-        {
-          internalType: "string",
-          name: "",
-          type: "string",
-        },
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [
+      "inputs": [
         {
-          internalType: "uint256",
-          name: "_ethAmount",
-          type: "uint256",
-        },
+          "internalType": "uint256",
+          "name": "_index",
+          "type": "uint256"
+        }
       ],
-      name: "getConversionRate",
-      outputs: [
+      "name": "getDonator",
+      "outputs": [
         {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [
+      "inputs": [],
+      "name": "getDonators",
+      "outputs": [
         {
-          internalType: "uint256",
-          name: "_index",
-          type: "uint256",
-        },
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
       ],
-      name: "getDonator",
-      outputs: [
-        {
-          internalType: "address",
-          name: "",
-          type: "address",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [
+      "inputs": [],
+      "name": "getEntries",
+      "outputs": [
         {
-          internalType: "uint256",
-          name: "id",
-          type: "uint256",
-        },
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
       ],
-      name: "getIdToAddress",
-      outputs: [
-        {
-          internalType: "address",
-          name: "",
-          type: "address",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [],
-      name: "getNumOfDonators",
-      outputs: [
+      "inputs": [
         {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "name": "getIdToAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [],
-      name: "getPriceFeed",
-      outputs: [
+      "inputs": [],
+      "name": "getPriceFeed",
+      "outputs": [
         {
-          internalType: "contract AggregatorV3Interface",
-          name: "",
-          type: "address",
-        },
+          "internalType": "contract AggregatorV3Interface",
+          "name": "",
+          "type": "address"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [
+      "inputs": [
         {
-          internalType: "uint256",
-          name: "_usdAmount",
-          type: "uint256",
-        },
+          "internalType": "uint256",
+          "name": "_usdAmount",
+          "type": "uint256"
+        }
       ],
-      name: "getUsdAmountInEth",
-      outputs: [
+      "name": "getUsdAmountInEth",
+      "outputs": [
         {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [],
-      name: "owner",
-      outputs: [
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
         {
-          internalType: "address",
-          name: "",
-          type: "address",
-        },
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [
-        {
-          internalType: "string",
-          name: "_name",
-          type: "string",
-        },
-        {
-          internalType: "string",
-          name: "_latitude",
-          type: "string",
-        },
-        {
-          internalType: "string",
-          name: "_longitude",
-          type: "string",
-        },
-      ],
-      name: "registerDonator",
-      outputs: [],
-      stateMutability: "nonpayable",
-      type: "function",
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
-      inputs: [],
-      name: "renounceOwnership",
-      outputs: [],
-      stateMutability: "nonpayable",
-      type: "function",
+      "inputs": [],
+      "name": "resetEntries",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
-      inputs: [],
-      name: "s_entries",
-      outputs: [
+      "inputs": [],
+      "name": "s_entries",
+      "outputs": [
         {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [],
-      name: "s_totalDonations",
-      outputs: [
+      "inputs": [],
+      "name": "s_totalDonations",
+      "outputs": [
         {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [],
-      name: "s_totalDonators",
-      outputs: [
+      "inputs": [],
+      "name": "s_totalDonators",
+      "outputs": [
         {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [
+      "inputs": [
         {
-          internalType: "address",
-          name: "_addressDonate",
-          type: "address",
-        },
+          "internalType": "address",
+          "name": "_addressDonate",
+          "type": "address"
+        }
       ],
-      name: "setAddress",
-      outputs: [],
-      stateMutability: "nonpayable",
-      type: "function",
+      "name": "setAddress",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
-      inputs: [
+      "inputs": [
         {
-          internalType: "address",
-          name: "newOwner",
-          type: "address",
-        },
+          "internalType": "address",
+          "name": "_addressDonate",
+          "type": "address"
+        }
       ],
-      name: "transferOwnership",
-      outputs: [],
-      stateMutability: "nonpayable",
-      type: "function",
+      "name": "setLotteryAddress",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
-      inputs: [
+      "inputs": [
         {
-          internalType: "address",
-          name: "_donator",
-          type: "address",
-        },
-        {
-          internalType: "uint256",
-          name: "_amount",
-          type: "uint256",
-        },
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
       ],
-      name: "withdraw",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "payable",
-      type: "function",
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_donator",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdraw",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    }
   ],
 }
