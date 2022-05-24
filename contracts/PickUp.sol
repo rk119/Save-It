@@ -84,8 +84,9 @@ contract PickUp is Ownable {
         );
         // if the food place is not registered, register it
         if (!s_foodPlaces[msg.sender].registered) {
+            i_numOfFoodPlaces++;
             FoodPlace memory fp = FoodPlace(
-                ++i_numOfFoodPlaces,
+                i_numOfFoodPlaces,
                 msg.sender,
                 "",
                 "default location",

@@ -3,29 +3,58 @@ import "./Donate.css"
 import "../pages/User.css"
 import { ethers } from "ethers"
 import donateinfo from "../contractinfo/donateinfo"
+import contractAddresses from "../contractinfo/addresses"
 import { ConnectButton } from "web3uikit"
 import bg from "../images/pexels-donate.png"
+import { useWeb3Contract, useMoralis } from "react-moralis"
 
 const Donate = () => {
+  const { isWeb3Enabled } = useMoralis()
   const provider = new ethers.providers.Web3Provider(window.ethereum)
-  const signer = provider.getSigner()
-  const address = "0x610178dA211FEF7D417bC0e6FeD39F05609AD788"
-
-  const [balance, setBalance] = useState()
-  const [depositValue, setDepositValue] = useState("")
-
-  const [name, setName] = useState("")
-  const [nameValue, setNameValue] = useState("")
-  const [lat, setLat] = useState("")
-  const [latValue, setLatValue] = useState("")
-  const [long, setLong] = useState("")
-  const [longValue, setLongValue] = useState("")
-  const [users, setUsers] = useState("")
-
+  const address = contractAddresses.donate
   const abi = donateinfo.abi
+  const signer = provider.getSigner()
   const contract = new ethers.Contract(address, abi, signer)
 
+  // state hooks
+  const [balance, setBalance] = useState()
+  const [depositValue, setDepositValue] = useState("")
+  const [numOfDonators, setNumOfDonators] = useState("0")
+  const [donationValue, setDonationValue] = useState("0")
+
+  /* make a donation */
+  const {
+    runContractFunction: donate,
+    data: enterTxResponse,
+    isLoading,
+    isFetching,
+  } = useWeb3Contract({
+    abi: abi,
+    contractAddress: address,
+    functionName: "donate",
+    msgValue: donationValue,
+    params: {
+      secondAgos: [10],
+    },
+  })
+
+  const { runContractFunction: s_totalDonators } = useWeb3Contract({
+    abi: abi,
+    contractAddress: address,
+    functionName: "s_totalDonators",
+    params: {},
+  })
+
+  async function updateUIValues() {
+    let numOfDonators = (await s_totalDonators()).toString()
+    setNumOfDonators(numOfDonators)
+  }
+
   useEffect(() => {
+    if (isWeb3Enabled) {
+      updateUIValues()
+    }
+
     const connectWallet = async () => {
       await provider.send("eth_requestAccounts", [])
     }
@@ -37,15 +66,9 @@ const Donate = () => {
       ethers.utils.formatEther(balance)
     }
 
-    const getUsers = async () => {
-      const numOfUsers = await contract.getNumOfDonators()
-      setUsers(numOfUsers)
-    }
-
     connectWallet().catch(console.error)
     getBalance().catch(console.error)
-    getUsers().catch(console.error)
-  })
+  }, [isWeb3Enabled])
 
   const handleDepositChange = (e) => {
     setDepositValue(e.target.value)
@@ -63,32 +86,9 @@ const Donate = () => {
     setDepositValue(0)
   }
 
-  const handleNameChange = (e) => {
-    setNameValue(e.target.value)
-  }
-
-  const handleLatChange = (e) => {
-    setLatValue(e.target.value)
-  }
-
-  const handleLongChange = (e) => {
-    setLongValue(e.target.value)
-  }
-
-  const handleRegisterSubmit = async (e) => {
-    e.preventDefault()
-    const registerUpdate = await contract.registerDonator(
-      nameValue,
-      latValue,
-      longValue
-    )
-    await registerUpdate.wait()
-    setName(nameValue)
-    setLat(latValue)
-    setLong(longValue)
-    setNameValue("")
-    setLatValue("") 
-    setLongValue("") 
+  const handleSuccess = async (tx) => {
+    await tx.wait(1)
+    updateUIValues()
   }
 
   const notifs = [
@@ -165,7 +165,15 @@ const Donate = () => {
                     value={depositValue}
                   />
                 </div>
-                <button type="submit" className="btn btn-primary">
+                <button type="submit" className="btn btn-primary"
+                  onClick={async () =>
+                    await donate({
+                      // onComplete:
+                      // onError:
+                      onSuccess: handleSuccess,
+                    })
+                  }
+                disabled={isLoading || isFetching}>
                   Donate
                 </button>
               </form>

@@ -3,10 +3,44 @@ import "./Restaurant.css"
 import "../pages/User.css"
 import { ethers } from "ethers"
 import pickupinfo from "../contractinfo/pickupinfo"
+import contractAddresses from "../contractinfo/addresses"
 import { ConnectButton } from "web3uikit"
 import bg from "../images/pexels-donate.png"
 
 const Restaurant = () => {
+  // update the contract address and abi manually
+  // todo: update the contract address and abi automatically with scripts
+  const provider = new ethers.providers.Web3Provider(window.ethereum)
+  const address = contractAddresses.pickup
+  const abi = pickupinfo.abi
+  const signer = provider.getSigner()
+  const contract = new ethers.Contract(address, abi, signer)
+
+  // state hooks
+  const [users, setUsers] = useState()
+  const [amount, setAmount] = useState('')
+  const [amountValue, setAmountValue] = useState(0)
+
+  useEffect(() => {
+    const requestAccounts = async () => {
+      await provider.send("eth_requestAccounts", []);
+    }
+
+    requestAccounts().catch(console.error)
+  }, [])
+
+  const handleRequestChange = (e) => {
+    setAmountValue(e.target.value)
+  }
+
+  const handleRequestSubmit = async (e) => {
+    e.preventDefault();
+    await contract.requestDelivery(amountValue)
+    const users = await contract.numOfFoodPlaces()
+    setAmount(amountValue)
+    setAmountValue('');
+    setUsers(users.toNumber())
+  }
 
   return (
     <>
@@ -25,7 +59,7 @@ const Restaurant = () => {
             <div className="rdashboard">
               <div className="rdashboardHeader">Dashboard</div>
               <div className="rdashboardText">Total Donations: 3473 kg</div>
-              <div className="rdashboardText">Food Companies Registered: 26</div>
+              <div className="rdashboardText">Food Companies Registered: {users} </div>
             </div>
           </div>
 
@@ -33,13 +67,14 @@ const Restaurant = () => {
             <div className="rmakeAD">
               <div className="rmakeADHeader">Donate Food</div>
               <div className="rmakeADSub">Specify the amount in kilograms (kg)</div>
-              <form>
+              <form onSubmit={handleRequestSubmit}>
                 <div className="mb-3">
                   <input
                     type="number"
                     className="form-control"
-                    placeholder="0"
-                    value="Amount in grams"
+                    placeholder=""
+                    onChange={handleRequestChange}
+                    value={amountValue}
                   />
                 </div>
                 <button type="submit" className="btn btn-primary">
@@ -53,7 +88,7 @@ const Restaurant = () => {
           <div className="rstats">
             <div>
               <div className="rdashboardHeader">Stats</div>
-              <div className="rdashboardText">Your donations: 45 kg </div> 
+              <div className="rdashboardText">Previous donation: {amount} kg </div> 
               <div className="rdashboardText">Location: West Bay, Springs </div> 
             </div>
           </div>
