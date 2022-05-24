@@ -45,7 +45,7 @@ const Restaurant = () => {
     e.preventDefault();
     await contract.requestDelivery(amountValue)
     const users = await contract.numOfFoodPlaces()
-    await contract.fundDelivery()
+    // await contract.fundDelivery()
     setAmount(amountValue)
     setAmountValue('');
     setUsers(users.toNumber())
