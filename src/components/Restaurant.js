@@ -7,6 +7,7 @@ import bg from "../images/pexels-donate.png"
 // pickup deployment address and abi 
 import pickupinfo from "../contractinfo/pickupinfo"
 import contractAddresses from "../contractinfo/addresses"
+import donateinfo from "../contractinfo/donateinfo"
 
 const Restaurant = () => {
   // update the contract address and abi manually
@@ -14,11 +15,17 @@ const Restaurant = () => {
   const provider = new ethers.providers.Web3Provider(window.ethereum)
   const address = contractAddresses.pickup
   const abi = pickupinfo.abi
+
+  const donateAddress = contractAddresses.donate
+  const donateAbi = donateinfo.abi
   const signer = provider.getSigner()
   const contract = new ethers.Contract(address, abi, signer)
+  contract.setAddress(donateAddress)
+  const donateContract = new ethers.Contract(donateAddress, donateAbi, signer)
 
   // state hooks
   const [users, setUsers] = useState()
+  const [status, setStatus] = useState('waiting')
   const [amount, setAmount] = useState('')
   const [amountValue, setAmountValue] = useState(0)
 
@@ -38,6 +45,7 @@ const Restaurant = () => {
     e.preventDefault();
     await contract.requestDelivery(amountValue)
     const users = await contract.numOfFoodPlaces()
+    await contract.fundDelivery()
     setAmount(amountValue)
     setAmountValue('');
     setUsers(users.toNumber())
@@ -59,7 +67,7 @@ const Restaurant = () => {
           <div className="col">
             <div className="rdashboard">
               <div className="rdashboardHeader">Dashboard</div>
-              <div className="rdashboardText">Total Donations: 3473 kg</div>
+              <div className="rdashboardText">Your Request Status: {status}</div>
               <div className="rdashboardText">Food Companies Registered: {users} </div>
             </div>
           </div>

@@ -19,12 +19,6 @@ export default {
           "internalType": "uint256",
           "name": "amountInKG",
           "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "requestId",
-          "type": "uint256"
         }
       ],
       "name": "NewRequest",
@@ -96,13 +90,7 @@ export default {
     {
       "inputs": [],
       "name": "fundDelivery",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -147,19 +135,6 @@ export default {
     },
     {
       "inputs": [],
-      "name": "numOfHandledRequests",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
       "name": "numOfRequests",
       "outputs": [
         {
@@ -182,19 +157,6 @@ export default {
         }
       ],
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "index",
-          "type": "uint256"
-        }
-      ],
-      "name": "removeRequest",
-      "outputs": [],
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -308,5 +270,5 @@ export default {
       "stateMutability": "nonpayable",
       "type": "function"
     }
-  ],
+  ]
 }

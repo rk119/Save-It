@@ -5,17 +5,24 @@ import { ethers } from "ethers"
 import { ConnectButton } from "web3uikit"
 import bg from "../images/pexels-donate.png"
 import donateinfo from "../contractinfo/donateinfo"
+import pickupinfo from "../contractinfo/pickupinfo"
 import contractAddresses from "../contractinfo/addresses"
 
 const Donate = () => {
   const provider = new ethers.providers.Web3Provider(window.ethereum)
   const address = contractAddresses.donate
   const abi = donateinfo.abi
+  
+  const pickupAddress = contractAddresses.pickup
+  const pickupAbi = pickupinfo.abi
   const signer = provider.getSigner()
   const contract = new ethers.Contract(address, abi, signer)
+  contract.setAddress(pickupAddress)
+  const pickupContract = new ethers.Contract(pickupAddress, pickupAbi, signer)
 
   // state hooks
   const [users, setUsers] = useState()
+  const [notif, setNotif] = useState()
   const [balance, setBalance] = useState()
   const [depositValue, setDepositValue] = useState("")
 
@@ -46,6 +53,12 @@ const Donate = () => {
     const balance = await provider.getBalance(address);
     setBalance(ethers.utils.formatEther(balance));
     setUsers(users.toNumber())
+  }
+
+  const handleDepositError = async (e) => {
+    e.preventDefault()
+    const notif = "You are already a donator"
+    setNotif(notif)
   }
 
   const notifs = [
@@ -93,15 +106,7 @@ const Donate = () => {
                 <div className="dashboardHeader">Stats</div>
                 <div className="dashboardText">Your total donations: </div>
                 <div className="dashboardHeader">Notifications</div>
-                <div className="dashboardNotifs">
-                  {/* {notifs.map((e) => {
-                    return (
-                      <>
-                        <div className="notifText">{e.notif}</div>
-                      </>
-                    )
-                  })} */}
-                </div>
+                <div className="dashboardNotifs">{notif}</div>
               </div>
             </div>
           </div>
@@ -112,7 +117,8 @@ const Donate = () => {
               <div className="makeADSub">
                 (Minimum value: 10USD or 0.0051 ETH)
               </div>
-              <form onSubmit={handleDepositSubmit}>
+              <form onSubmit={handleDepositSubmit}
+              onError={handleDepositError}>
                 <div className="mb-3">
                   <input
                     type="number"

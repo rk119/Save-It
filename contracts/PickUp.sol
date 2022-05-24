@@ -70,11 +70,7 @@ contract PickUp is Ownable {
         emit NewRequest(msg.sender, _amountInKG);
     }
 
-    function fundDelivery() external onlyOwner {
-        require(
-            msg.sender == i_owner || msg.sender == s_donate,
-            "Not the owner"
-        );
+    function fundDelivery() external {
         require(s_deliveryRequests.length > 0, "No pending requests");
         Request memory request;
         uint256 requests = s_deliveryRequests.length;
