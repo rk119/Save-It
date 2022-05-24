@@ -57,7 +57,7 @@ describe("PickUp", async () => {
         it("should be successful when params are valid", async () => {
             await expect(pickup.connect(fp1).requestDelivery(22))
                 .to.emit(pickup, "NewRequest")
-                .withArgs(fp1.address, 22, 2)
+                .withArgs(fp1.address, 22)
         })
         // FAILURE: parameters invalid or empty
         it("fails if the params are invalid", async () => {
@@ -123,13 +123,13 @@ describe("PickUp", async () => {
         // SUCCESS: parameters are valid
         it("should be successful when params are valid", async () => {
             await expect(pickup.connect(fp2).requestDelivery(22))
-            .to.emit(pickup, "NewRequest").withArgs(fp2.address, 22, 5)
+            .to.emit(pickup, "NewRequest").withArgs(fp2.address, 22)
             await expect(pickup.connect(fp3).requestDelivery(43))
-            .to.emit(pickup, "NewRequest").withArgs(fp3.address, 43, 6)
+            .to.emit(pickup, "NewRequest").withArgs(fp3.address, 43)
             await expect(pickup.connect(fp4).requestDelivery(39))
-            .to.emit(pickup, "NewRequest").withArgs(fp4.address, 39, 7)
+            .to.emit(pickup, "NewRequest").withArgs(fp4.address, 39)
             await expect(pickup.connect(fp2).requestDelivery(32))
-            .to.emit(pickup, "NewRequest").withArgs(fp2.address, 32, 8)
+            .to.emit(pickup, "NewRequest").withArgs(fp2.address, 32)
         })
         // FAILURE: parameters invalid or empty
         it("fails if the params are invalid", async () => {
@@ -154,7 +154,7 @@ describe("PickUp", async () => {
         // SUCCESS: parameters are valid
         it("should be successful when params are valid", async () => {
             await expect(pickup.connect(fp2).requestDelivery(22))
-            .to.emit(pickup, "NewRequest").withArgs(fp2.address, 22, 2)
+            .to.emit(pickup, "NewRequest").withArgs(fp2.address, 22)
         })
         // FAILURE: parameters invalid or empty
         it("fails if the params are invalid", async () => {
@@ -195,13 +195,6 @@ describe("PickUp", async () => {
                 Math.round(ethers.utils.formatEther(newBalance)),
                 Math.round(ethers.utils.formatEther(expected))
             )
-            // assert.equal((newBalance).toString(), (await donate.getConversionRate(originalBalance)).toString())
-            // donationAmount = await donate.getConversionRate(await donate.getAddressToAmount(d1.address))
-            // assert.equal(donationAmount.toString(), "0")
-            // donationAmount = await donate.getConversionRate(await donate.getAddressToAmount(d2.address))
-            // assert.equal(donationAmount.toString(), "0")
-            // donationAmount = await donate.getConversionRate(await donate.getAddressToAmount(d3.address))
-            // assert.equal((donationAmount/10**18).toString(), "5")
         })
         it("fails if caller is not owner", async () => {
             expect(pickup.connect(fp1).fundDelivery()).to.be.revertedWith("caller is not the owner")
@@ -228,7 +221,7 @@ describe("PickUp", async () => {
         })
     })
 
-    describe("removeRequest function testing", async () => {
+    describe("pendingRequests function testing", async () => {
         let numOfFoodPlaces, numOfRequests
         beforeEach(async () => { 
             // food place requests a delivery
@@ -236,7 +229,7 @@ describe("PickUp", async () => {
             await pickup.connect(fp2).requestDelivery(31)
             await pickup.connect(fp3).requestDelivery(32)
             numOfFoodPlaces = await pickup.numOfFoodPlaces()
-            numOfRequests = await pickup.numOfHandledRequests()
+            numOfRequests = await pickup.numOfRequests()
         })
         it("checks all the food places were registered", async () => {
             // number of pending requests remains the same
@@ -245,12 +238,6 @@ describe("PickUp", async () => {
         it("checks all the requests were placed", async () => {
             // number of pending requests remains the same
             assert.equal(numOfRequests, 3)
-        })
-        xit("removes a request", async () => { 
-            // number of pending requests remains the same
-            await pickup.removeRequest(0)
-            numOfRequests = await pickup.numOfHandledRequests()
-            assert.equal(numOfFoodPlaces.toNumber(), 2)
         })
     })
 })
