@@ -40,12 +40,6 @@ describe("Donate", async () => {
             assert.notEqual(address, null)
             assert.notEqual(address, undefined)
         })
-
-        it("registers a donator", async () => {
-            await expect(
-                donate.connect(donator1).registerDonator("RifRof", "25.197197", "55.274376")
-            ).to.emit(donate, "DonatorRegistered").withArgs(0, "RifRof", "25.197197", "55.274376")
-        })
     })
 
     describe("donating", async () => {
@@ -54,7 +48,6 @@ describe("Donate", async () => {
         beforeEach(async () => {
             oldBalance = await donator1.getBalance()
             donation = await donate.getUsdAmountInEth(10)
-            await donate.connect(donator1).registerDonator("RifRof", "25.197197", "55.274376")
             result = await donate.connect(donator1).donate({ value: donation })  
         })
 
@@ -103,7 +96,6 @@ describe("Donate", async () => {
 
         it("different address makes another donation", async () => {
             let oldBalance2 = await donator2.getBalance()
-            await donate.connect(donator2).registerDonator("Moses", "21.191135", "57.274876")
             let secondDonation = await donate.getUsdAmountInEth(12)
             await expect(
                 donate.connect(donator2).donate({ value: secondDonation })

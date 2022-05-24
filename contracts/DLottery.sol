@@ -82,7 +82,7 @@ contract DLottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
         bool isOpen = LotteryState.OPEN == s_lotteryState;
         bool timePassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
         bool hasPlayers = donate.getEntries() > 0;
-        upkeepNeeded = (timePassed && isOpen && hasPlayers);
+        upkeepNeeded = (isOpen && timePassed && hasPlayers);
         return (upkeepNeeded, "0x0");
     }
 

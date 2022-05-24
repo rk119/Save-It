@@ -20,12 +20,6 @@ const {
         await dlottery.setAddress(donate.address)
         await donate.setLotteryAddress(dlottery.address)
         donation = await donate.getUsdAmountInEth(10)
-        // register 3 different donators
-        await donate.connect(donator1).registerDonator("RifRof", "25.197197", "55.274376")
-        await donate.connect(donator2).registerDonator("Moses", "24.197197", "54.274376")
-        await donate.connect(donator3).registerDonator("Haya", "23.197197", "53.274376")
-        await donate.connect(donator4).registerDonator("Raha", "22.197197", "52.274376")
-    
         await donate.connect(donator1).donate({ value: donation })
         await donate.connect(donator2).donate({ value: donation })
         await donate.connect(donator3).donate({ value: donation })
@@ -57,7 +51,6 @@ const {
 
     describe("checkUpkeep", () => {
         it("returns false if lottery isn't open", async () => {
-            // await dlottery.enterLottery({ value: dlotteryEntranceFee })
             await network.provider.send("evm_increaseTime", [interval.toNumber() + 1,])
             await network.provider.request({method: "evm_mine", params: [],})
             await dlottery.performUpkeep([])
@@ -66,19 +59,21 @@ const {
             assert.equal(lotteryState.toString() == "1", upkeepNeeded == false)
         })
 
-        // it("returns false if enough time hasn't passed", async () => {
-        //     // await dlottery.enterLottery({ value: dlotteryEntranceFee })
-        //     await network.provider.send("evm_increaseTime", [
-        //         interval.toNumber() - 1,
-        //     ])
-        //     await network.provider.request({
-        //         method: "evm_mine",
-        //         params: [],
-        //     })
-        //     const { upkeepNeeded } =
-        //         await dlottery.callStatic.checkUpkeep("0x")
-        //     assert(!upkeepNeeded)
-        // })
+        xit("returns false if enough time hasn't passed", async () => {
+            const checkData = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(""))
+            await expect(counter.performUpkeep(checkData)).to.be.revertedWith("Time interval not met")
+            // await dlottery.enterLottery({ value: dlotteryEntranceFee })
+            // await network.provider.send("evm_increaseTime", [
+            //     interval.toNumber() - 1,
+            // ])
+            // await network.provider.request({
+            //     method: "evm_mine",
+            //     params: [],
+            // })
+            // const { upkeepNeeded } =
+            //     await dlottery.connect(donator1).callStatic.checkUpkeep("0x")
+            // assert(!upkeepNeeded)
+        })
 
         it("returns true if enough time has passed, has players, eth, and is open", async () => {
             await network.provider.send("evm_increaseTime", [interval.toNumber() + 1,])

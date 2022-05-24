@@ -9,7 +9,6 @@ interface IDonate {
     function getUsdAmountInEth(uint256 _usdAmount) external view returns (uint256);
     function getDonator(uint256 _index) external view returns (address); 
     function getAddressToAmount(address _donator) external view returns (uint256);
-    function getAddressToDonatorData(address _donator) external view returns (string memory, string memory, string memory);
     function getIdToAddress(uint256 id) external view returns (address);
     function withdraw(address _donator, uint256 _amount) external payable returns(uint256);
     function getEntries() external view returns (uint256);
@@ -17,13 +16,6 @@ interface IDonate {
 }
 
 contract Donate is Ownable {
-
-    struct DonatorData {
-        uint256 amount;
-        string name;
-        string latitude;
-        string longitude;
-    }
     uint256 public constant MINIMUM_USD = 10 * 10**18;
     address payable private immutable i_owner;
     address private s_pickMe;
@@ -33,7 +25,7 @@ contract Donate is Ownable {
     uint256 public s_entries;
     address[] private s_donators;
     mapping(address => bool) private s_addressToRegistered;
-    mapping(address => DonatorData) private s_addressToDonatorData;
+    mapping(address => uint256) private s_addressToAmount;
     mapping(uint256 => address) private s_idToAddress;
     AggregatorV3Interface private s_priceFeed;
     event DonatorRegistered(uint256 amount, string name, string latitude, string longitude);
@@ -73,34 +65,24 @@ contract Donate is Ownable {
         return usdAmountInEth;
     }
 
-    function registerDonator(string memory _name, string memory _latitude, string memory _longitude) public {
-        require(msg.sender != i_owner, "Owner cannot register as donator");
-        require(!s_addressToRegistered[msg.sender], "Already registered");
-        require(bytes(_name).length > 0, "Invalid. Name cannot be empty");
-        require(bytes(_longitude).length > 0, "Invalid. Longitude cannot be empty");
-        require(bytes(_latitude).length > 0, "Invalid. Latitude cannot be empty");
-        s_totalDonators++;
-        s_addressToRegistered[msg.sender] = true;
-        DonatorData memory data = DonatorData(0, _name, _latitude, _longitude);
-        s_addressToDonatorData[msg.sender] = data;
-        s_donators.push(msg.sender);
-        emit DonatorRegistered(0, _name, _latitude, _longitude);
-    }
-
     function donate() public payable {
         require(msg.sender != i_owner, "Owner is already a donator");
-        require(s_addressToRegistered[msg.sender], "You need to register first!");
         require(getConversionRate(msg.value) >= MINIMUM_USD, "You need to spend more ETH!");
+        if (!s_addressToRegistered[msg.sender]) {
+            s_totalDonators++;
+            s_addressToRegistered[msg.sender] = true;
+            s_donators.push(msg.sender);
+        }
         s_totalDonations += msg.value;
-        s_addressToDonatorData[msg.sender].amount += msg.value;
+        s_addressToAmount[msg.sender] += msg.value;
         s_idToAddress[++s_entries] = msg.sender;
         emit DonationAccepted(msg.sender, msg.value);
     }
 
     function withdraw(address _donator, uint256 _amount) external payable returns(uint256) {
         require(msg.sender == i_owner || msg.sender == s_pickMe, "Not the owner");
-        require(s_addressToDonatorData[_donator].amount >= _amount, "Can't withdraw more than donated amount!");
-        s_addressToDonatorData[_donator].amount = s_addressToDonatorData[_donator].amount - _amount;
+        require(s_addressToAmount[_donator] >= _amount, "Can't withdraw more than donated amount!");
+        s_addressToAmount[_donator] = s_addressToAmount[_donator] - _amount;
         payable(i_owner).transfer(_amount);
         return _amount;
     }
@@ -112,11 +94,7 @@ contract Donate is Ownable {
     }
 
     function getAddressToAmount(address _donator) external view returns (uint256) {
-        return s_addressToDonatorData[_donator].amount;
-    }
-
-    function getAddressToDonatorData(address _donator) external view returns (string memory, string memory, string memory) {
-        return (s_addressToDonatorData[_donator].name, s_addressToDonatorData[_donator].latitude, s_addressToDonatorData[_donator].longitude);
+        return s_addressToAmount[_donator];
     }
 
     function getIdToAddress(uint256 id) external view returns (address) {
@@ -138,6 +116,7 @@ contract Donate is Ownable {
     }
 
     function resetEntries() external {
+        require(msg.sender == i_owner || msg.sender == s_dlottery, "Not the owner");
         s_entries = 0;
     }
 
