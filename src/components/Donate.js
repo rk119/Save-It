@@ -4,8 +4,6 @@ import "../pages/User.css"
 import { ethers } from "ethers"
 import { ConnectButton } from "web3uikit"
 import bg from "../images/pexels-donate.png"
-import donateinfo from "../contractinfo/donateinfo"
-import pickupinfo from "../contractinfo/pickupinfo"
 import saveitinfo from "../contractinfo/saveitinfo"
 import contractAddresses from "../contractinfo/addresses"
 

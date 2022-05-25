@@ -412,6 +412,24 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         emit WinnerPicked(recentWinner);
     }
 
+    // temporary pick a winner function for testing
+    function pickAWinner() public {
+        if (s_totalDonations > 0) {
+            uint256 indexOfWinner = random();
+            address recentWinner = s_donators[indexOfWinner];
+            s_recentWinner = recentWinner;
+            // resetEntries();
+            s_lotteryState = LotteryState.OPEN;
+            s_lastTimeStamp = block.timestamp;
+        }
+    }
+
+    // temporary random function for testing
+    function random() internal view returns (uint) {
+        uint randomHash = uint(keccak256(abi.encodePacked(block.timestamp, block.difficulty, msg.sender)));
+        return randomHash % s_totalDonators;
+    }
+
     /** Getter Functions */
 
     function getLotteryState() public view returns (LotteryState) {

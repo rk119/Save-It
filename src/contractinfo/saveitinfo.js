@@ -623,6 +623,13 @@ export default {
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "pickAWinner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "uint256",

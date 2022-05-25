@@ -182,4 +182,12 @@ describe("SaveIt Unit Tests", async function () {
             })
         })
     })
+
+    describe("fake test", () => { 
+        it("picks a winner", async () => { 
+            await saveit.pickAWinner()
+            const recentWinner = await saveit.getRecentWinner()
+            assert.equal(recentWinner.toString(), donator1.address)
+        })
+    })
 })
