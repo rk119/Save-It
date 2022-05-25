@@ -16,6 +16,12 @@ module.exports = {
     localhost: {
       chainId: 31337,
     },
+    rinkeby: {
+      url: "",
+      accounts: "remote",
+      chainId: 4,
+      saveDeployments: true
+    }
   },
   namedAccounts: {
     deployer: {
