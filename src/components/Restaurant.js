@@ -95,11 +95,11 @@ const Restaurant = () => {
 
           <div className="space"></div>
           <div className="rstats">
-            <div>
+            {/* <div>
               <div className="rdashboardHeader">Stats</div>
               <div className="rdashboardText">Previous donation: {amount} kg </div> 
               <div className="rdashboardText">Location: West Bay, Springs </div> 
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

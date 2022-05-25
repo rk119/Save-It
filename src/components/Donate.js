@@ -99,12 +99,12 @@ const Donate = () => {
             </div>
             <div className="space"></div>
             <div className="stats">
-              <div>
+              {/* <div>
                 <div className="dashboardHeader">Stats</div>
-                <div className="dashboardText">Your total donations: </div>
+                <div className="dashboardText">Your total donations: {td} </div>
                 <div className="dashboardHeader">Notifications</div>
                 <div className="dashboardNotifs">{notif}</div>
-              </div>
+              </div> */}
             </div>
           </div>
 

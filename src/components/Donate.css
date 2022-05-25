@@ -3,7 +3,7 @@
 }
 
 .makeAD {
-  height: 500px;
+  height: 250px;
   /* width: 95%; */
   border-radius: 25px;
   background-color: rgb(246, 252, 255);
@@ -16,7 +16,6 @@
 .makeADHeader {
   font-size: 50px;
   font-weight: 500;
-  padding-top: 100px;
   align-items: center;
   text-align: center;
 }
@@ -30,7 +29,7 @@
 }
 
 .dashboard {
-  height: 200px;
+  height: 250px;
   border-radius: 25px;
   background-color: rgb(246, 252, 255);
   border: 3px solid rgb(244, 238, 238);
@@ -40,7 +39,7 @@
 }
 
 .dashboardHeader {
-  font-size: 30px;
+  font-size: 50px;
   font-weight: 500;
   align-items: center;
   text-align: center;
@@ -52,7 +51,7 @@
   padding-top: 20px;
 }
 
-.stats {
+/* .stats {
   height: 270px;
   border-radius: 25px;
   background-color: rgb(246, 252, 255);
@@ -60,7 +59,7 @@
   padding: 10px;
   justify-content: center;
   align-items: center;
-}
+} */
 
 .dashboardNotifs {
   display: flex;
