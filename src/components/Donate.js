@@ -6,19 +6,15 @@ import { ConnectButton } from "web3uikit"
 import bg from "../images/pexels-donate.png"
 import donateinfo from "../contractinfo/donateinfo"
 import pickupinfo from "../contractinfo/pickupinfo"
+import saveitinfo from "../contractinfo/saveitinfo"
 import contractAddresses from "../contractinfo/addresses"
 
 const Donate = () => {
   const provider = new ethers.providers.Web3Provider(window.ethereum)
-  const address = contractAddresses.donate
-  const abi = donateinfo.abi
-  
-  const pickupAddress = contractAddresses.pickup
-  const pickupAbi = pickupinfo.abi
+  const address = contractAddresses.saveit
+  const abi = saveitinfo.abi
   const signer = provider.getSigner()
   const contract = new ethers.Contract(address, abi, signer)
-  contract.setAddress(pickupAddress)
-  const pickupContract = new ethers.Contract(pickupAddress, pickupAbi, signer)
 
   // state hooks
   const [users, setUsers] = useState()
@@ -51,6 +47,7 @@ const Donate = () => {
     const users = await contract.getDonators()
     await deposit.wait();
     const balance = await provider.getBalance(address);
+    // await contract.setAddress("0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9")
     setBalance(ethers.utils.formatEther(balance));
     setUsers(users.toNumber())
   }

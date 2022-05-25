@@ -8,20 +8,18 @@ import bg from "../images/pexels-donate.png"
 import pickupinfo from "../contractinfo/pickupinfo"
 import contractAddresses from "../contractinfo/addresses"
 import donateinfo from "../contractinfo/donateinfo"
+import saveitinfo from "../contractinfo/saveitinfo"
 
 const Restaurant = () => {
-  // update the contract address and abi manually
-  // todo: update the contract address and abi automatically with scripts
   const provider = new ethers.providers.Web3Provider(window.ethereum)
-  const address = contractAddresses.pickup
-  const abi = pickupinfo.abi
-
-  const donateAddress = contractAddresses.donate
-  const donateAbi = donateinfo.abi
+  const address = contractAddresses.saveit
+  const abi = saveitinfo.abi
   const signer = provider.getSigner()
   const contract = new ethers.Contract(address, abi, signer)
-  contract.setAddress(donateAddress)
-  const donateContract = new ethers.Contract(donateAddress, donateAbi, signer)
+
+  // const donateAbi = donateinfo.abi
+  // const donateAddress = contractAddresses.donate
+  // const donate = new ethers.Contract(donateAddress, donateAbi, signer)
 
   // state hooks
   const [users, setUsers] = useState()
@@ -45,6 +43,8 @@ const Restaurant = () => {
     e.preventDefault();
     await contract.requestDelivery(amountValue)
     const users = await contract.numOfFoodPlaces()
+    // await contract.setAddress(donate.address)
+    // await donate.setAddress(contract.address)
     // await contract.fundDelivery()
     setAmount(amountValue)
     setAmountValue('');

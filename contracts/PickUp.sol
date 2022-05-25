@@ -75,16 +75,16 @@ contract PickUp is Ownable {
         Request memory request;
         uint256 requests = s_deliveryRequests.length;
         uint256 cost = 25 * requests; // placeholder value for funding a delivery request
-        uint256 balance = address(donate).balance;
+        // uint256 balance = address(donate).balance;
         uint256 i = 0;
         uint256 withdrawn = 0;
         donate = IDonate(s_donate);
         cost = donate.getUsdAmountInEth(cost);
-        balance = donate.getUsdAmountInEth(balance);
-        require(
-            balance >= donate.getUsdAmountInEth(25),
-            "Insufficient funds"
-        );
+        // balance = donate.getUsdAmountInEth(balance);
+        // require(
+        //     balance >= donate.getUsdAmountInEth(25),
+        //     "Insufficient funds"
+        // );
         for (uint k = 0; k < requests; k++) {
             request = s_deliveryRequests[0];
             while (cost > 0) {

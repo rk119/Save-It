@@ -15,29 +15,26 @@ async function main() {
   console.log("MockV3Aggregator deployed to:", mockV3Aggregator.address)
 
   // deploy VRFCoordinatorV2Mock
-  const VRFCoordinatorV2Mock = await hre.ethers.getContractFactory(
-    "VRFCoordinatorV2Mock"
-  )
-  const vrfCoordinatorV2Mock = await VRFCoordinatorV2Mock.deploy(
-    "100000000000000000",
-    1e9
-  )
+  const VRFCoordinatorV2Mock = await hre.ethers.getContractFactory("VRFCoordinatorV2Mock")
+  const vrfCoordinatorV2Mock = await VRFCoordinatorV2Mock.deploy("100000000000000000", 1e9)
   await vrfCoordinatorV2Mock.deployed()
   console.log("VRFCoordinatorV2Mock deployed to:", vrfCoordinatorV2Mock.address)
     
   // deploy Donate
-  const ethUsdAggregator = await deployments.get("MockV3Aggregator")
-  ethUsdPriceFeedAddress = ethUsdAggregator.address
-  const Donate = await hre.ethers.getContractFactory("Donate")
-  const donate = await Donate.deploy(ethUsdPriceFeedAddress)
-  await donate.deployed()
-  console.log("Donate deployed to:", donate.address)
+  // const ethUsdAggregator = await deployments.get("MockV3Aggregator")
+  // ethUsdPriceFeedAddress = ethUsdAggregator.address
+  // const Donate = await hre.ethers.getContractFactory("Donate")
+  // const donate = await Donate.deploy(ethUsdPriceFeedAddress)
+  // await donate.deployed()
+  // console.log("Donate deployed to:", donate.address)
   
   // deploy PickUp
   const PickUp = await hre.ethers.getContractFactory("PickUp")
   const pickup = await PickUp.deploy()
   await pickup.deployed()
   console.log("PickUp deployed to:", pickup.address)
+  // await donate.setAddress(pickup.address)
+  // await pickup.setAddress(donate.address)
   
   // deploy DLottery
   const vrfCoordinatorV2 = await deployments.get("VRFCoordinatorV2Mock")
@@ -53,6 +50,14 @@ async function main() {
   )
   await dlottery.deployed()
   console.log("Donate deployed to:", dlottery.address)
+
+  // deploy SaveIt
+  const ethUsdAggregator = await deployments.get("MockV3Aggregator")
+  ethUsdPriceFeedAddress = ethUsdAggregator.address
+  const SaveIt = await hre.ethers.getContractFactory("SaveIt")
+  const saveit = await SaveIt.deploy(ethUsdPriceFeedAddress)
+  await saveit.deployed()
+  console.log("SaveIt deployed to:", saveit.address)
 }
 
 main().then(() => process.exit(0)).catch((error) => {
