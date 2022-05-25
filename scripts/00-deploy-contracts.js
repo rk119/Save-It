@@ -19,43 +19,22 @@ async function main() {
   const vrfCoordinatorV2Mock = await VRFCoordinatorV2Mock.deploy("100000000000000000", 1e9)
   await vrfCoordinatorV2Mock.deployed()
   console.log("VRFCoordinatorV2Mock deployed to:", vrfCoordinatorV2Mock.address)
-    
-  // deploy Donate
-  // const ethUsdAggregator = await deployments.get("MockV3Aggregator")
-  // ethUsdPriceFeedAddress = ethUsdAggregator.address
-  // const Donate = await hre.ethers.getContractFactory("Donate")
-  // const donate = await Donate.deploy(ethUsdPriceFeedAddress)
-  // await donate.deployed()
-  // console.log("Donate deployed to:", donate.address)
-  
-  // deploy PickUp
-  const PickUp = await hre.ethers.getContractFactory("PickUp")
-  const pickup = await PickUp.deploy()
-  await pickup.deployed()
-  console.log("PickUp deployed to:", pickup.address)
-  // await donate.setAddress(pickup.address)
-  // await pickup.setAddress(donate.address)
-  
-  // deploy DLottery
+
+  // deploy SaveIt
   const vrfCoordinatorV2 = await deployments.get("VRFCoordinatorV2Mock")
   vrfAddress = vrfCoordinatorV2.address
-  const DLottery = await hre.ethers.getContractFactory("DLottery")
-  const dlottery = await DLottery.deploy(
+  const ethUsdAggregator = await deployments.get("MockV3Aggregator")
+  ethUsdPriceFeedAddress = ethUsdAggregator.address
+  const SaveIt = await hre.ethers.getContractFactory("SaveIt")
+  const saveit = await SaveIt.deploy(
     vrfAddress,
     "588",
     "0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc",
     "30",
     "100000000000000000",
-    "500000"
+    "500000",
+    ethUsdPriceFeedAddress,
   )
-  await dlottery.deployed()
-  console.log("Donate deployed to:", dlottery.address)
-
-  // deploy SaveIt
-  const ethUsdAggregator = await deployments.get("MockV3Aggregator")
-  ethUsdPriceFeedAddress = ethUsdAggregator.address
-  const SaveIt = await hre.ethers.getContractFactory("SaveIt")
-  const saveit = await SaveIt.deploy(ethUsdPriceFeedAddress)
   await saveit.deployed()
   console.log("SaveIt deployed to:", saveit.address)
 }

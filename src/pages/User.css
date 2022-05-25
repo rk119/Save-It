@@ -1,13 +1,13 @@
 .uspageIdentify {
     display: flex;
     max-width: 100%;
-    padding: 20px;
+    /* padding-left: 20px; */
     top: 0px;
     color: rgb(255, 255, 255);
     font-weight: bold;
     font-size: 30px;
     /* justify-content: center; */
-    z-index: 999;
+    z-index: -1;
 }
 
 .connectWallet {
@@ -30,30 +30,39 @@
 }
 
 .selectCard {
-    display: flex;
-    text-align: center;
-    justify-content: center;
-    align-items: center;
-    width: 360px;
-    height: 220px;
-    background-color: rgb(46, 44, 44);
-    border-radius: 25px;
-    border: 3px solid rgb(37, 36, 36);
+  z-index: -1;
+  display: flex;
+  position: relative;
+  left: 120px;
+  width: 360px;
+  height: 220px;
+  border-radius: 25px;
+  background-color: rgb(46, 44, 44);
+  border: 3px solid rgb(37, 36, 36);
+  justify-content: center;
+  align-items: center;
 }
 
 .userCardText {
-    font-size: 40px;
-    font-weight: 500;
-    color: rgb(223, 89, 96);
+  font-size: 40px;
+  font-weight: 500;
+  color: rgb(223, 89, 96);
 }
 
 .selectCard:hover {
-    cursor: pointer;
-    background-color: rgb(57, 53, 53);
+  cursor: pointer;
+  background-color: rgb(57, 53, 53);
+}
+
+.cardsSubContainer {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  left: 10px;
 }
 
 .cardsSub {
-    display: flex;
+    /* display: flex; */
     justify-content: center;
     align-items: center;
     padding: 30px 50px;

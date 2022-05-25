@@ -28,21 +28,27 @@ const User = () => {
       <div className="connectWallet">
         <ConnectButton moralisAuth={false} />
       </div>
+      
       <div className="uspageIdentify">Select User</div>
-      <div className="cardContainer">
-        <div className="customCard">
-          {cards.map((e) => {
-            return (
-              <>
-                <div className="" onClick={() => window.open(e.link, "_self")}>
-                  <div className="selectCard">
-                    <div className="userCardText">{e.type}</div>
-                  </div>
-                  <div className="cardsSub">{e.text}</div>
-                </div>
-              </>
-            )
-          })}
+      <div className="row mt-5">
+        <div className="col">
+          <div className="" onClick={() => window.open(cards[0].link, "_self")}>
+            <div className="selectCard">
+              <div className="userCardText">{cards[0].type}</div>
+            </div>
+            <div className="cardsSub">{cards[0].text}</div>
+          </div>
+        </div>
+
+        <div className="col">
+          <div className="" onClick={() => window.open(cards[1].link, "_self")}>
+            <div className="selectCard">
+              <div className="userCardText">{cards[1].type}</div>
+            </div>
+            <div className="cardsSubContainer">
+              <div className="cardsSub">{cards[1].text}</div>
+            </div>
+          </div>
         </div>
       </div>
 
