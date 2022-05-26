@@ -7,7 +7,7 @@
   /* width: 95%; */
   border-radius: 25px;
   background-color: rgb(246, 252, 255);
-  border: 3px solid rgb(210, 210, 210);
+  border: 3px solid rgb(244, 238, 238);
   padding: 10px;
   justify-content: center;
   align-items: center;
@@ -51,8 +51,8 @@
   padding-top: 20px;
 }
 
-/* .rstats {
-  height: 200px;
+.rstats {
+  height: 250px;
   width: 93%;
   border-radius: 25px;
   background-color: rgb(246, 252, 255);
@@ -60,7 +60,7 @@
   padding: 10px;
   justify-content: center;
   align-items: center;
-} */
+}
 
 .rdashboardNotifs {
   display: flex;

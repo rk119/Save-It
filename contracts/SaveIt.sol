@@ -83,6 +83,8 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
     uint256 private immutable i_interval;
     uint256 private s_lastTimeStamp;
     address private s_recentWinner;
+    string private s_winnersFood;
+    uint256 private i_numOfFoodies;
     address private s_currentWinner;
     uint256 private i_entranceFee;
     Foodie[] private s_foodies;
@@ -271,14 +273,6 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
 
     /* setter functions */
 
-    // function setAddress(address _addressDonate) external {
-    //     s_pickMe = _addressDonate;
-    // }
-
-    // function setLotteryAddress(address _addressDonate) external {
-    //     s_dlottery = _addressDonate;
-    // }
-
     // function resetEntries() external {
     //     require(msg.sender == i_owner || msg.sender == s_dlottery, "Not the owner");
     //     s_entries = 0;
@@ -309,7 +303,7 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
             _amountInKG
         );
         s_deliveryRequests.push(newRequest);
-        fundDelivery();
+        // fundDelivery();
         // trigger an event for the new delivery request
         emit NewRequest(msg.sender, _amountInKG);
     }
@@ -346,6 +340,7 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
 
     function addFoodie(string memory _food) public {
         s_foodies.push(Foodie(_food, msg.sender));
+        i_numOfFoodies++;
         emit newFoodieAdded(_food);
     }
 
@@ -415,20 +410,30 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
     // temporary pick a winner function for testing
     function pickAWinner() public {
         if (s_totalDonations > 0) {
-            uint256 indexOfWinner = random();
+            uint256 indexOfWinner = random(s_totalDonators);
             address recentWinner = s_donators[indexOfWinner];
             s_recentWinner = recentWinner;
+            selectFood();
             // resetEntries();
             s_lotteryState = LotteryState.OPEN;
             s_lastTimeStamp = block.timestamp;
         }
     }
 
-    // temporary random function for testing
-    function random() internal view returns (uint) {
-        uint randomHash = uint(keccak256(abi.encodePacked(block.timestamp, block.difficulty, msg.sender)));
-        return randomHash % s_totalDonators;
+    function selectFood() public {
+        uint size = s_foodies.length;
+        if (size > 0) {
+            uint256 indexOfFoodie = random(size);
+            Foodie memory foodie = s_foodies[indexOfFoodie];
+            s_winnersFood = foodie.food;
+        }
     }
+    // temporary random function for testing
+    function random(uint arraySize) internal view returns (uint) {
+        uint randomHash = uint(keccak256(abi.encodePacked(block.timestamp, block.difficulty, msg.sender)));
+        return randomHash % arraySize;
+    }
+
 
     /** Getter Functions */
 
@@ -448,9 +453,9 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         return s_recentWinner;
     }
 
-    // function getDonator(uint256 index) public view returns (address) {
-    //     return getIdToAddress(index);
-    // }
+    function getWinnersFood() public view returns (string memory) {
+        return s_winnersFood;
+    }
 
     function getLastTimeStamp() public view returns (uint256) {
         return s_lastTimeStamp;
@@ -460,11 +465,7 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         return i_interval;
     }
 
-    // function getNumberOfDonators() public view returns (uint256) {
-    //     return donate.getEntries();
-    // }
-
     function getNumberOfFoodies() public view returns (uint256) {
-        return s_foodies.length;
+        return i_numOfFoodies;
     }
 }

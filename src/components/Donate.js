@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react"
+import { useMoralis, useWeb3Contract } from "react-moralis"
 import "./Donate.css"
 import "../pages/User.css"
 import { ethers } from "ethers"
@@ -14,11 +15,20 @@ const Donate = () => {
   const signer = provider.getSigner()
   const contract = new ethers.Contract(address, abi, signer)
 
+  const { isWeb3Enabled } = useMoralis()
+
   // state hooks
-  const [users, setUsers] = useState()
+  const [users, setUsers] = useState("0")
   const [notif, setNotif] = useState()
-  const [balance, setBalance] = useState()
+  const [balance, setBalance] = useState("0")
   const [depositValue, setDepositValue] = useState("")
+
+  const { runContractFunction: getDonators } = useWeb3Contract({
+      abi: abi,
+      contractAddress: address,
+      functionName: "getDonators",
+      params: {},
+  })
 
   useEffect(() => {
     const requestAccounts = async () => {
@@ -42,12 +52,10 @@ const Donate = () => {
     e.preventDefault();
     const ethValue = ethers.utils.parseEther(depositValue)
     const deposit = await contract.donate({ value: ethValue });
-    const users = await contract.getDonators()
     await deposit.wait();
     const balance = await provider.getBalance(address);
     // await contract.setAddress("0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9")
     setBalance(ethers.utils.formatEther(balance));
-    setUsers(users.toNumber())
   }
 
   const handleDepositError = async (e) => {
@@ -56,20 +64,16 @@ const Donate = () => {
     setNotif(notif)
   }
 
-  const notifs = [
-    {
-      notif: "Donation of 0.0051 ETH used by Subway",
-    },
-    {
-      notif: "Donation of 0.0051 ETH used by Baskin Robbins",
-    },
-    {
-      notif: "Donation of 0.0051 ETH used by Wendy's",
-    },
-    {
-      notif: "Donation of 0.0051 ETH used by Papa Murphy",
-    },
-  ]
+  async function updateUIValues() {
+      const numPlayersFromCall = (await getDonators()).toString()
+      setUsers(numPlayersFromCall)
+  }
+
+  useEffect(() => {
+      if (isWeb3Enabled) {
+          updateUIValues()
+      }
+  }, [isWeb3Enabled])
 
   return (
     <>

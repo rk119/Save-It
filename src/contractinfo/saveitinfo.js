@@ -572,6 +572,19 @@ export default {
     },
     {
       "inputs": [],
+      "name": "getWinnersFood",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "numOfFoodPlaces",
       "outputs": [
         {
@@ -743,6 +756,13 @@ export default {
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "selectFood",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {

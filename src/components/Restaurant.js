@@ -4,11 +4,9 @@ import "../pages/User.css"
 import { ethers } from "ethers"
 import { ConnectButton } from "web3uikit"
 import bg from "../images/pexels-donate.png"
-// pickup deployment address and abi 
-import pickupinfo from "../contractinfo/pickupinfo"
 import contractAddresses from "../contractinfo/addresses"
-import donateinfo from "../contractinfo/donateinfo"
 import saveitinfo from "../contractinfo/saveitinfo"
+import { useMoralis, useWeb3Contract } from "react-moralis"
 
 const Restaurant = () => {
   const provider = new ethers.providers.Web3Provider(window.ethereum)
@@ -17,23 +15,42 @@ const Restaurant = () => {
   const signer = provider.getSigner()
   const contract = new ethers.Contract(address, abi, signer)
 
-  // const donateAbi = donateinfo.abi
-  // const donateAddress = contractAddresses.donate
-  // const donate = new ethers.Contract(donateAddress, donateAbi, signer)
+  const { Moralis, isWeb3Enabled, chainId: chainIdHex } = useMoralis()
 
   // state hooks
-  const [users, setUsers] = useState()
+  const [users, setUsers] = useState("0")
   const [status, setStatus] = useState('waiting')
   const [amount, setAmount] = useState('')
-  const [amountValue, setAmountValue] = useState(0)
+  const [amountValue, setAmountValue] = useState("")
+  const [foodieValue, setFoodieValue] = useState("")
+  const [foodies, setFoodies] = useState("")
+
+  const { runContractFunction: getNumberOfFoodies } = useWeb3Contract({
+      abi: abi,
+      contractAddress: address,
+      functionName: "getNumberOfFoodies",
+      params: {},
+  })
+
+  const { runContractFunction: numOfFoodPlaces } = useWeb3Contract({
+      abi: abi,
+      contractAddress: address,
+      functionName: "numOfFoodPlaces",
+      params: {},
+  })
+
+  async function updateUIValues() {
+      const foodies = (await getNumberOfFoodies()).toString()
+      const users = (await numOfFoodPlaces()).toString()
+      setFoodies(foodies)
+      setUsers(users)
+  }
 
   useEffect(() => {
-    const requestAccounts = async () => {
-      await provider.send("eth_requestAccounts", []);
-    }
-
-    requestAccounts().catch(console.error)
-  }, [])
+      if (isWeb3Enabled) {
+          updateUIValues()
+      }
+  }, [isWeb3Enabled])
 
   const handleRequestChange = (e) => {
     setAmountValue(e.target.value)
@@ -42,13 +59,20 @@ const Restaurant = () => {
   const handleRequestSubmit = async (e) => {
     e.preventDefault();
     await contract.requestDelivery(amountValue)
-    const users = await contract.numOfFoodPlaces()
     // await contract.setAddress(donate.address)
     // await donate.setAddress(contract.address)
     // await contract.fundDelivery()
     setAmount(amountValue)
     setAmountValue('');
-    setUsers(users.toNumber())
+  }
+
+  const handleFoodieChange = (e) => {
+    setFoodieValue(e.target.value)
+  }
+
+  const handleFoodieSubmit = async (e) => {
+    e.preventDefault();
+    await contract.addFoodie(foodieValue)
   }
 
   return (
@@ -95,11 +119,25 @@ const Restaurant = () => {
 
           <div className="space"></div>
           <div className="rstats">
-            {/* <div>
-              <div className="rdashboardHeader">Stats</div>
-              <div className="rdashboardText">Previous donation: {amount} kg </div> 
-              <div className="rdashboardText">Location: West Bay, Springs </div> 
-            </div> */}
+            <div>
+              <div className="rdashboardHeader">Add Foodie</div>
+              <div className="rdashboardText">Number of foodies: { foodies } </div> 
+              <form onSubmit={handleFoodieSubmit}>
+                <div className="mb-3">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder=""
+                    onChange={handleFoodieChange}
+                    value={foodieValue}
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary">
+                  Push Foodie
+                </button>
+              </form>
+              {/* <div className="rdashboardText">Location: West Bay, Springs </div>  */}
+            </div>
           </div>
         </div>
       </div>

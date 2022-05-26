@@ -49,6 +49,7 @@ const WinFood = () => {
     const { isWeb3Enabled } = useMoralis()
     const [numberOfPlayers, setNumberOfPlayers] = useState("0")
     const [recentWinner, setRecentWinner] = useState("0x0000000")
+    const [foodie, setFoodie] = useState("foo")
     const [countdown, setCountdown] = useState("29d 23h 59m")
 
     // number of donators
@@ -66,9 +67,13 @@ const WinFood = () => {
 
     async function winner() {
         await contract.pickAWinner()
+        await contract.selectFood()
         const recentWinnerFromCall = await contract.getRecentWinner()
         console.log(recentWinnerFromCall)
+        const foodie = await contract.getWinnersFood()
+        console.log(foodie)
         setRecentWinner(recentWinnerFromCall)
+        setFoodie(foodie)
     }
 
     useEffect(() => {
@@ -79,14 +84,6 @@ const WinFood = () => {
             }
         }
     }, [isWeb3Enabled])
-
-    const handleSelectWinner = async (e) => {
-        e.preventDefault()
-        await contract.pickAWinner()
-        const recentWinnerFromCall = await contract.getRecentWinner()
-        console.log(recentWinnerFromCall)
-        setRecentWinner(recentWinnerFromCall)
-    }
 
     return (
         <>
@@ -105,7 +102,7 @@ const WinFood = () => {
             <div className="mainHeader">Last month's winner:</div>
             <div className="longBodyText">
                 Congratulations to {recentWinner} for winning last month's
-                lottery!
+                lottery! They won {foodie} !
             </div>
             <div className="mainHeader">Lottery Countdown</div>
             <div className="countdownText">{seconds} s</div>
