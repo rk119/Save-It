@@ -52,3 +52,8 @@ has for providing the reassurance that an action taken will be seen through till
 
 ---
 ---
+
+## Inspiration
+Food wastage is an widely apparent issue around the world. On a daily basis, food in many restaurants is often thrown out in large quantities, which results in immense food wastage. More than 80% of food in wasted in the US alone... the global numbers must be frightening! What if there was a way to dramatically reduce food wastage? What if this food could be used before it gets expired and thrown out? That's where Save It comes in. Save It lets food companies and organizations donate their unsold food before it expires and gets tossed out. This food will be transported and distributed to people in need. The transportation and distribution of this food will be funded by donators who donate to the smart contract. 
+
+Donators automatically get entered into a decentralized lottery and a random winner gets selected every month. And the prize? Free food for a day!
