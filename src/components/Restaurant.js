@@ -24,6 +24,7 @@ const Restaurant = () => {
   const [amountValue, setAmountValue] = useState("")
   const [foodieValue, setFoodieValue] = useState("")
   const [foodies, setFoodies] = useState("")
+  const [balance, setBalance] = useState("0")
 
   const { runContractFunction: getNumberOfFoodies } = useWeb3Contract({
       abi: abi,
@@ -40,26 +41,28 @@ const Restaurant = () => {
   })
 
   async function updateUIValues() {
-      const foodies = (await getNumberOfFoodies()).toString()
-      const users = (await numOfFoodPlaces()).toString()
-      setFoodies(foodies)
-      setUsers(users)
+    const foodies = (await getNumberOfFoodies()).toString()
+    const users = (await numOfFoodPlaces()).toString()
+    setFoodies(foodies)
+    setUsers(users)
   }
 
   useEffect(() => {
       if (isWeb3Enabled) {
-          updateUIValues()
+        updateUIValues()
       }
   }, [isWeb3Enabled])
 
   const handleRequestChange = (e) => {
     setAmountValue(e.target.value)
+    setStatus("pending")
   }
 
   const handleRequestSubmit = async (e) => {
     e.preventDefault();
     await contract.requestDelivery(amountValue)
-    // await contract.fundDelivery()
+    console.log('success')
+    setStatus("Funded!")
     setAmount(amountValue)
     setAmountValue('');
   }
@@ -92,11 +95,10 @@ const Restaurant = () => {
               <div className="rdashboardHeader">Dashboard</div>
               <div className="rdashboardText">Your Request Status: {status}</div>
               <div className="rdashboardText">Food Companies Registered: {users} </div>
-            </div>
 
-            <div className="space"></div>
+              <div className="space"></div>
+              <div className="space"></div>
 
-            <div className="rdashboard">
               <div className="rdashboardHeader">Settings</div>
               <div className="rdashboardText">Set Name: </div>
               <div className="rdashboardText">Set Location: </div>
@@ -115,6 +117,8 @@ const Restaurant = () => {
                     placeholder=""
                     onChange={handleRequestChange}
                     value={amountValue}
+                    min="0"
+                    max="299"
                   />
                 </div>
                 <button type="submit" className="btn btn-primary">

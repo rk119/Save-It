@@ -189,7 +189,9 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         require(s_deliveryRequests.length > 0, "No pending requests");
         Request memory request;
         uint256 requests = s_deliveryRequests.length;
-        uint256 cost = 25 * requests; // placeholder value for funding a delivery request
+        // uint256 cost = 9170 * requests; // placeholder value for funding a delivery request
+        // uint256 cost = 9170000000 * requests;
+        uint256 cost = 27259000000 * requests;
         // uint256 balance = address(donate).balance;
         uint256 i = 0;
         uint256 withdrawn = 0;
@@ -205,18 +207,18 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
                         // if (s_addressToAmount[donator] >= amount) {
                         // }
                         withdrawn = cost;
-                        s_addressToAmount[donator] =
-                            s_addressToAmount[donator] -
-                            amount;
-                        payable(i_owner).transfer(amount);
+                        s_addressToAmount[donator] = s_addressToAmount[donator] - cost;
+                        // payable(i_owner).transfer(cost);
+                        (bool success, ) = i_owner.call{value: cost}("");
+                        require(success);
                     }
                     if (amount < cost) {
                         // withdrawn = uint(withdraw(donator, amount));
                         withdrawn = amount;
-                        s_addressToAmount[donator] =
-                            s_addressToAmount[donator] -
-                            amount;
-                        payable(i_owner).transfer(amount);
+                        s_addressToAmount[donator] = s_addressToAmount[donator] - amount;
+                        // payable(i_owner).transfer(amount);
+                        (bool success, ) = i_owner.call{value: amount}("");
+                        require(success);
                     }
                     cost -= withdrawn;
                     emit NotifyDonator(donator, withdrawn, request.name);
@@ -270,6 +272,7 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         );
         s_deliveryRequests.push(newRequest);
         // trigger an event for the new delivery request
+        fundDelivery();
         emit NewRequest(msg.sender, _amountInKG);
     }
 
@@ -320,7 +323,6 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         bytes calldata /* performData */
     ) external override {
         (bool upkeepNeeded, ) = checkUpkeep("");
-        // require(upkeepNeeded, "Upkeep not needed");
         if (!upkeepNeeded) {
             revert Lottery__UpkeepNotNeeded(
                 address(this).balance,
