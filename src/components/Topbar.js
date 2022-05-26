@@ -21,7 +21,7 @@ const Topbar = () => {
       <div className="topbarContent">
         <Link to="/user" className="link">
           <div className="menuItems">
-            <Icon fill="#F42F22" size={20} svg="eth"></Icon>
+            <Icon fill="#C91B10" size={20} svg="eth"></Icon>
             Donate
           </div>
         </Link>
@@ -29,7 +29,7 @@ const Topbar = () => {
       <div className="topbarContent">
         <Link to="/rankings" className="link">
           <div className="menuItems">
-            <Icon fill="#F42F22" size={20} svg="chart"></Icon>
+            <Icon fill="#C91B10" size={20} svg="chart"></Icon>
             Top Fooders
           </div>
         </Link>
@@ -37,7 +37,7 @@ const Topbar = () => {
       <div className="topbarContent">
         <Link to="/winfood" className="link">
           <div className="menuItems">
-            <Icon fill="#F42F22" size={20} svg="ada"></Icon>
+            <Icon fill="#C91B10" size={20} svg="ada"></Icon>
             Win Food
           </div>
         </Link>
