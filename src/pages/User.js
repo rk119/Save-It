@@ -32,7 +32,7 @@ const User = () => {
       <div className="uspageIdentify">Select User</div>
       <div className="row mt-5">
         <div className="col">
-          <div className="" onClick={() => window.open(cards[0].link, "_self")}>
+            <div className="" onClick={() => window.open(cards[0].link, "_self")}>
             <div className="selectCard">
               <div className="userCardText">{cards[0].type}</div>
             </div>

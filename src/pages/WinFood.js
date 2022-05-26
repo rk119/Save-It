@@ -50,7 +50,6 @@ const WinFood = () => {
     const [numberOfPlayers, setNumberOfPlayers] = useState("0")
     const [recentWinner, setRecentWinner] = useState("0x0000000")
     const [foodie, setFoodie] = useState("foo")
-    const [countdown, setCountdown] = useState("29d 23h 59m")
 
     // number of donators
     const { runContractFunction: getDonators } = useWeb3Contract({
@@ -108,12 +107,17 @@ const WinFood = () => {
             <div className="countdownText">{seconds} s</div>
             {/* testing the manual winner selection */}
             <div className="row">
-              <button className={`button button-primary button-primary-${isActive ? 'active' : 'inactive'}`} onClick={toggle}>
-              {isActive ? 'Pause' : 'Start'}
-              </button>
-              <button className="button" onClick={reset}>
-                Reset
-              </button>
+                <button
+                    className={`button button-primary button-primary-${
+                        isActive ? "active" : "inactive"
+                    }`}
+                    onClick={toggle}
+                >
+                    {isActive ? "Pause" : "Start"}
+                </button>
+                <button className="button" onClick={reset}>
+                    Reset
+                </button>
             </div>
             {/* end of testing block */}
             <div className="mainHeader">Number of Donators</div>
@@ -129,6 +133,7 @@ const WinFood = () => {
                         <a
                             href="https://docs.chain.link/docs/chainlink-vrf/"
                             target={"_blank"}
+                            rel="noreferrer"
                         >
                             {" "}
                             here

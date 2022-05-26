@@ -16,21 +16,14 @@
     justify-content: center;
 }
 
-.cardContainer {
-    padding-left: 25px;
-    padding-right: 25px;
-}
-
 .customCard {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-inline-start: 100px;
-    padding-inline-end: 100px;
 }
 
 .selectCard {
-  z-index: -1;
+  /* z-index: -1; */
   display: flex;
   position: relative;
   left: 120px;
@@ -43,15 +36,15 @@
   align-items: center;
 }
 
+.selectCard:hover {
+  cursor: pointer;
+  background-color: rgb(57, 53, 53);
+}
+
 .userCardText {
   font-size: 40px;
   font-weight: 500;
   color: rgb(223, 89, 96);
-}
-
-.selectCard:hover {
-  cursor: pointer;
-  background-color: rgb(57, 53, 53);
 }
 
 .cardsSubContainer {
