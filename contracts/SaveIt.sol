@@ -44,6 +44,7 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         address owner;
         string name;
         string location;
+        uint amountDonated;
         bool registered;
     }
     // a struct to describe a food delivery request
@@ -56,6 +57,7 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
     uint256 private i_numOfFoodPlaces;
     Request[] s_deliveryRequests;
     mapping(address => FoodPlace) public s_foodPlaces;
+    address[] s_foodPlaceAddresses;
     event NewRequest(address requester, uint256 amountInKG);
     event NotifyDonator(
         address donator,
@@ -261,10 +263,13 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
                 msg.sender,
                 "",
                 "default location",
+                _amountInKG,
                 true
             );
             s_foodPlaces[msg.sender] = fp;
+            s_foodPlaceAddresses.push(msg.sender);
         }
+        s_foodPlaces[msg.sender].amountDonated += _amountInKG;
         Request memory newRequest = Request(
             msg.sender,
             s_foodPlaces[msg.sender].name,
@@ -276,6 +281,10 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         emit NewRequest(msg.sender, _amountInKG);
     }
 
+    function setTopFooder() public {
+
+    }
+ 
     /* setter functions */
 
     function setName(string memory _name) public {
@@ -301,6 +310,14 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
 
     function getLocation() external view returns (string memory) {
         return s_foodPlaces[msg.sender].location;
+    }
+
+    function getAmountDonated(address foodplace) public view returns (uint256) {
+        return s_foodPlaces[foodplace].amountDonated;
+    }
+
+    function getAddressFromIndex(uint256 index) public view returns (address) {
+        return s_idToAddress[id];
     }
 
     function addFoodie(string memory _food) public {
