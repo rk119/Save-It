@@ -59,8 +59,6 @@ const Restaurant = () => {
   const handleRequestSubmit = async (e) => {
     e.preventDefault();
     await contract.requestDelivery(amountValue)
-    // await contract.setAddress(donate.address)
-    // await donate.setAddress(contract.address)
     // await contract.fundDelivery()
     setAmount(amountValue)
     setAmountValue('');
@@ -89,10 +87,19 @@ const Restaurant = () => {
       <div className="donationContainer">
         <div className="row mt-5">
           <div className="col">
+
             <div className="rdashboard">
               <div className="rdashboardHeader">Dashboard</div>
               <div className="rdashboardText">Your Request Status: {status}</div>
               <div className="rdashboardText">Food Companies Registered: {users} </div>
+            </div>
+
+            <div className="space"></div>
+
+            <div className="rdashboard">
+              <div className="rdashboardHeader">Settings</div>
+              <div className="rdashboardText">Set Name: </div>
+              <div className="rdashboardText">Set Location: </div>
             </div>
           </div>
 
@@ -115,10 +122,10 @@ const Restaurant = () => {
                 </button>
               </form>
             </div>
-          </div>
 
-          <div className="space"></div>
-          <div className="rstats">
+            <div className="space"></div>
+            
+            <div className="addFoodie">
             <div>
               <div className="rdashboardHeader">Add Foodie</div>
               <div className="rdashboardText">Number of foodies: { foodies } </div> 
@@ -139,6 +146,10 @@ const Restaurant = () => {
               {/* <div className="rdashboardText">Location: West Bay, Springs </div>  */}
             </div>
           </div>
+          </div>
+
+          
+          
         </div>
       </div>
     </>

@@ -3,7 +3,7 @@
 }
 
 .makeAD {
-  height: 250px;
+  height: 350px;
   /* width: 95%; */
   border-radius: 25px;
   background-color: rgb(246, 252, 255);
@@ -29,7 +29,7 @@
 }
 
 .dashboard {
-  height: 250px;
+  height: 350px;
   border-radius: 25px;
   background-color: rgb(246, 252, 255);
   border: 3px solid rgb(244, 238, 238);

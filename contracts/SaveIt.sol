@@ -14,9 +14,6 @@ error Lottery__UpkeepNotNeeded(
     uint256 numPlayers,
     uint256 lotteryState
 );
-error Lottery__TransferFailed();
-error Lottery__SendMoreToEnterLottery();
-error Lottery__LotteryNotOpen();
 
 contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
     // donate variables
@@ -129,38 +126,23 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         return s_priceFeed;
     }
 
-    function getPrice(AggregatorV3Interface _priceFeed)
-        internal
-        view
-        returns (uint256)
-    {
+    function getPrice(AggregatorV3Interface _priceFeed) internal view returns (uint256) {
         (, int256 answer, , , ) = _priceFeed.latestRoundData();
         return uint256(answer * 10000000000);
     }
 
-    function getConversionRate(uint256 _ethAmount)
-        public
-        view
-        returns (uint256)
-    {
+    function getConversionRate(uint256 _ethAmount)public view returns (uint256) {
         uint256 ethPrice = getPrice(s_priceFeed);
         uint256 ethAmountInUsd = (ethPrice * _ethAmount) / 1000000000000000000;
         return ethAmountInUsd;
     }
 
-    function divider(
-        uint numerator,
-        uint denominator,
-        uint precision
-    ) internal pure returns (uint) {
+    function divider(uint numerator, uint denominator, uint precision) internal pure returns (uint) {
         return (numerator * (uint(10)**uint(precision))) / denominator;
     }
 
     function getUsdAmountInEth(uint256 _usdAmount)
-        public
-        view
-        returns (uint256)
-    {
+        public view returns (uint256) {
         _usdAmount = _usdAmount * (10**18);
         uint256 ethPrice = getPrice(s_priceFeed);
         uint256 usdAmountInEth = divider(_usdAmount, ethPrice, 18);
@@ -195,10 +177,7 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
     }
 
     function getAddressToAmount(address _donator)
-        public
-        view
-        returns (uint256)
-    {
+        public view returns (uint256) {
         return s_addressToAmount[_donator];
     }
 
@@ -215,11 +194,6 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         uint256 i = 0;
         uint256 withdrawn = 0;
         cost = getUsdAmountInEth(cost);
-        // balance = donate.getUsdAmountInEth(balance);
-        // require(
-        //     balance >= donate.getUsdAmountInEth(25),
-        //     "Insufficient funds"
-        // );
         for (uint k = 0; k < requests; k++) {
             request = s_deliveryRequests[0];
             while (cost > 0) {
@@ -295,7 +269,6 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
             _amountInKG
         );
         s_deliveryRequests.push(newRequest);
-        // fundDelivery();
         // trigger an event for the new delivery request
         emit NewRequest(msg.sender, _amountInKG);
     }
@@ -333,17 +306,9 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         emit newFoodieAdded(_food);
     }
 
-    function checkUpkeep(
-        bytes memory /* checkData */
-    )
-        public
-        view
-        override
-        returns (
-            bool upkeepNeeded,
-            bytes memory /* performData */
-        )
-    {
+    function checkUpkeep(bytes memory /* checkData */)
+        public view override
+        returns (bool upkeepNeeded,bytes memory /* performData */) {
         bool isOpen = LotteryState.OPEN == s_lotteryState;
         bool timePassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
         bool hasPlayers = s_totalDonations > 0;
@@ -384,11 +349,6 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         // resetEntries();
         s_lotteryState = LotteryState.OPEN;
         s_lastTimeStamp = block.timestamp;
-        // (bool success, ) = recentWinner.call{value: address(this).balance}("");
-        // require(success, "Transfer failed");
-        // if (!success) {
-        //     revert Lottery__TransferFailed();
-        // }
         emit WinnerPicked(recentWinner);
     }
 
@@ -404,7 +364,7 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
             s_lastTimeStamp = block.timestamp;
         }
     }
-
+    // temporary select food function for testing
     function selectFood() public {
         uint size = s_foodies.length;
         if (size > 0) {
@@ -418,7 +378,6 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         uint randomHash = uint(keccak256(abi.encodePacked(block.timestamp, block.difficulty, msg.sender)));
         return randomHash % arraySize;
     }
-
 
     /** Getter Functions */
 

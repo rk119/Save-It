@@ -20,6 +20,7 @@ const Donate = () => {
   // state hooks
   const [users, setUsers] = useState("0")
   const [notif, setNotif] = useState()
+  const [status, setStatus] = useState("pending")
   const [balance, setBalance] = useState("0")
   const [depositValue, setDepositValue] = useState("")
 
@@ -46,6 +47,7 @@ const Donate = () => {
 
   const handleDepositChange = (e) => {
     setDepositValue(e.target.value)
+    setStatus("pending")
   }
 
   const handleDepositSubmit = async (e) => {
@@ -53,15 +55,15 @@ const Donate = () => {
     const ethValue = ethers.utils.parseEther(depositValue)
     const deposit = await contract.donate({ value: ethValue });
     await deposit.wait();
-    const balance = await provider.getBalance(address);
-    // await contract.setAddress("0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9")
-    setBalance(ethers.utils.formatEther(balance));
+    const contractBalance = await provider.getBalance(address);
+    setBalance(ethers.utils.formatEther(contractBalance));
+    setStatus("Donation success!");
   }
 
   const handleDepositError = async (e) => {
     e.preventDefault()
-    const notif = "You are already a donator"
-    setNotif(notif)
+    const notification = "You are already a donator"
+    setNotif(notification)
   }
 
   async function updateUIValues() {
@@ -97,6 +99,7 @@ const Donate = () => {
               <div className="dashboardText">
                 Total Donations: {balance} ETH
               </div>
+              <div className="dashboardText">Donation Status: {status} </div>
               <div className="dashboardText">Number of users: {users} </div>
             </div>
             <div className="space"></div>
