@@ -128,7 +128,6 @@ const Donate = () => {
                     placeholder="0"
                     onChange={handleDepositChange}
                     value={depositValue}
-                    min="0.0051"
                   />
                 </div>
                 <button type="submit" className="btn btn-primary">
