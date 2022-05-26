@@ -178,19 +178,11 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
             s_addressToRegistered[msg.sender] = true;
             s_donators.push(msg.sender);
         }
-        s_totalDonations += msg.value;
+        s_totalDonations++;
         s_addressToAmount[msg.sender] += msg.value;
         s_idToAddress[++s_entries] = msg.sender;
         emit DonationAccepted(msg.sender, msg.value);
     }
-
-    // function withdraw(address _donator, uint256 _amount) public payable returns(uint256) {
-    //     require(msg.sender == i_owner /* || msg.sender == s_pickMe */, "Not the owner");
-    //     require(s_addressToAmount[_donator] >= _amount, "Can't withdraw more than donated amount!");
-    //     s_addressToAmount[_donator] = s_addressToAmount[_donator] - _amount;
-    //     payable(i_owner).transfer(_amount);
-    //     return _amount;
-    // }
 
     /* getter functions */
 
@@ -273,10 +265,16 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
 
     /* setter functions */
 
+<<<<<<< HEAD
     // function resetEntries() external {
     //     require(msg.sender == i_owner || msg.sender == s_dlottery, "Not the owner");
     //     s_entries = 0;
     // }
+=======
+    function resetEntries() internal onlyOwner {
+        s_entries = 0;
+    }
+>>>>>>> 448d8f25e50f310fbcc6123782b340a9b5a21711
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     function requestDelivery(uint256 _amountInKG) public {
@@ -309,9 +307,6 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
     }
 
     /* setter functions */
-    // function setAddress(address _addressDonate) external {
-    //     s_donate = _addressDonate;
-    // }
 
     function setName(string memory _name) public {
         s_foodPlaces[msg.sender].name = _name;
@@ -343,10 +338,6 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         i_numOfFoodies++;
         emit newFoodieAdded(_food);
     }
-
-    // function setAddress(address _addressDonate) external {
-    //     donate = IDonate(_addressDonate);
-    // }
 
     function checkUpkeep(
         bytes memory /* checkData */
