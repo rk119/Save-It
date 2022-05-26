@@ -265,16 +265,10 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
 
     /* setter functions */
 
-<<<<<<< HEAD
     // function resetEntries() external {
     //     require(msg.sender == i_owner || msg.sender == s_dlottery, "Not the owner");
     //     s_entries = 0;
     // }
-=======
-    function resetEntries() internal onlyOwner {
-        s_entries = 0;
-    }
->>>>>>> 448d8f25e50f310fbcc6123782b340a9b5a21711
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     function requestDelivery(uint256 _amountInKG) public {
