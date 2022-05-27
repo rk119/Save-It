@@ -23,9 +23,7 @@ const Restaurant = () => {
   const [amount, setAmount] = useState('')
   const [amountValue, setAmountValue] = useState("")
   const [balance, setBalance] = useState("0")
-  const [name, setName] = useState("")
   const [nameValue, setNameValue] = useState("")
-  const [location, setLocation] = useState("")
   const [locationValue, setLocationValue] = useState("")
 
   const { runContractFunction: numOfFoodPlaces } = useWeb3Contract({
@@ -37,11 +35,7 @@ const Restaurant = () => {
 
   async function updateUIValues() {
     const users = (await numOfFoodPlaces()).toString()
-    const name = (await contract.getName()).toString()
-    const location = (await contract.getLocation()).toString()
     setUsers(users)
-    setName(name)
-    setLocation(location)
   }
 
   useEffect(() => {

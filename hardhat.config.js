@@ -7,6 +7,15 @@ require("hardhat-deploy")
 require("@nomiclabs/hardhat-waffle")
 require("dotenv").config()
 
+const ALCHEMY_API_KEY = "HzxX9UmdDhnM8UYPlS3tcDysi5MCKFaR"
+
+// Replace this private key with your Ropsten account private key
+// To export your private key from Metamask, open Metamask and
+// go to Account Details > Export Private Key
+// Be aware of NEVER putting real Ether into testing accounts
+const RINKEBY_PRIVATE_KEY =
+    "0xca394caca4c42ed4372e2efb39b371f30abb1b30a86b943b2c2f8752d5602a20"
+
 module.exports = {
   defaultNetwork: "hardhat",
   networks: {
@@ -17,10 +26,10 @@ module.exports = {
       chainId: 31337,
     },
     rinkeby: {
-      url: "",
-      accounts: "remote",
-      chainId: 4,
-      saveDeployments: true
+      url: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+      accounts: [`${RINKEBY_PRIVATE_KEY}`],
+      // chainId: 4,
+      // saveDeployments: true
     }
   },
   namedAccounts: {

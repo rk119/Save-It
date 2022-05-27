@@ -165,15 +165,15 @@ export default {
       "inputs": [
         {
           "indexed": false,
-          "internalType": "address",
-          "name": "donator",
-          "type": "address"
+          "internalType": "address[]",
+          "name": "donators",
+          "type": "address[]"
         },
         {
           "indexed": false,
-          "internalType": "uint256",
+          "internalType": "uint256[]",
           "name": "donation",
-          "type": "uint256"
+          "type": "uint256[]"
         },
         {
           "indexed": false,

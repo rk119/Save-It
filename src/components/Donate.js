@@ -19,7 +19,6 @@ const Donate = () => {
 
   // state hooks
   const [users, setUsers] = useState("0")
-  // const [notif, setNotif] = useState()
   const [status, setStatus] = useState("N/A")
   const [balance, setBalance] = useState("0")
   const [depositValue, setDepositValue] = useState("")
@@ -60,12 +59,6 @@ const Donate = () => {
     setBalance(ethers.utils.formatEther(contractBalance));
     setStatus("Donation success!");
   }
-
-  // const handleDepositError = async (e) => {
-  //   e.preventDefault()
-  //   const notification = "You are already a donator"
-  //   setNotif(notification)
-  // }
 
   async function updateUIValues() {
     const donators = (await getDonators()).toString()
@@ -134,7 +127,6 @@ const Donate = () => {
                     placeholder="0"
                     onChange={handleDepositChange}
                     value={depositValue}
-                    min="0"
                   />
                 </div>
                 <button type="submit" className="btn btn-primary">

@@ -21,10 +21,12 @@ async function main() {
   console.log("VRFCoordinatorV2Mock deployed to:", vrfCoordinatorV2Mock.address)
 
   // deploy SaveIt
-  const vrfCoordinatorV2 = await deployments.get("VRFCoordinatorV2Mock")
-  vrfAddress = vrfCoordinatorV2.address
-  const ethUsdAggregator = await deployments.get("MockV3Aggregator")
-  ethUsdPriceFeedAddress = ethUsdAggregator.address
+  // const vrfCoordinatorV2 = await deployments.get("VRFCoordinatorV2Mock")
+  // vrfAddress = vrfCoordinatorV2.address
+  vrfAddress = "0xf92479E7183e35c97E372F3a094F415f414CCe07"
+  // const ethUsdAggregator = await deployments.get("MockV3Aggregator")
+  // ethUsdPriceFeedAddress = ethUsdAggregator.address
+  ethUsdPriceFeedAddress = "0x19ed2E3236D017170Ccc8DD9062E3E65318951B0"
   const SaveIt = await hre.ethers.getContractFactory("SaveIt")
   const saveit = await SaveIt.deploy(
     vrfAddress,

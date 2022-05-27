@@ -61,7 +61,7 @@ const WinFood = () => {
 
     async function updateUIValues() {
         const numPlayersFromCall = (await getDonators()).toString()
-        setNumberOfPlayers("1")
+        setNumberOfPlayers(numPlayersFromCall)
     }
 
     async function winner() {
@@ -116,7 +116,7 @@ const WinFood = () => {
             </div>
             {/* end of testing block */}
             <div className="mainHeader">Number of Donators</div>
-            <div className="countdownText">{numberOfPlayers}</div>
+            <div className="countdownText"> { numberOfPlayers } </div>
             <div className="bottomBox">
                 <div className="bottomHeader">How are winners chosen?</div>
                 <div className="cardsSub">

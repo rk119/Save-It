@@ -203,7 +203,7 @@ describe("SaveIt Unit Tests", async function () {
         })
     })
 
-    xdescribe("registering multiple new food places", async () => {
+    describe("registering multiple new food places", async () => {
         let numOfFoodPlaces
         let name1, name2, name3, name4
         let location1, location2, location3, location4
@@ -229,26 +229,26 @@ describe("SaveIt Unit Tests", async function () {
             assert.equal(numOfFoodPlaces, 4)
         })
         it("checks the name of the food place 1", async () => {
-            name1 = await saveit.connect(foodplace1).getName()
+            name1 = await saveit.connect(foodplace1).getName(foodplace1.address)
             assert.equal(name1, "Food Place 1")
         })
         it("checks the name of the food place 2", async () => {
-            name2 = await saveit.connect(foodplace2).getName()
+            name2 = await saveit.connect(foodplace2).getName(foodplace2.address)
             assert.equal(name2, "Food Place 2")
         })
         it("checks the name of the food place 3", async () => {
-            name3 = await saveit.connect(foodplace3).getName()
+            name3 = await saveit.connect(foodplace3).getName(foodplace3.address)
             assert.equal(name3, "Food Place 3")
         })
         it("checks the name of the food place 4", async () => {
-            name4 = await saveit.connect(foodplace4).getName()
+            name4 = await saveit.connect(foodplace4).getName(foodplace4.address)
             assert.equal(name4, "Food Place 4")
         })
         it("checks the locations of the food places", async () => {
-            location1 = await saveit.connect(foodplace1).getLocation()
-            location2 = await saveit.connect(foodplace2).getLocation()
-            location3 = await saveit.connect(foodplace3).getLocation()
-            location4 = await saveit.connect(foodplace4).getLocation()
+            location1 = await saveit.connect(foodplace1).getLocation(foodplace1.address)
+            location2 = await saveit.connect(foodplace2).getLocation(foodplace2.address)
+            location3 = await saveit.connect(foodplace3).getLocation(foodplace3.address)
+            location4 = await saveit.connect(foodplace4).getLocation(foodplace4.address)
             assert.equal(location1, "West Bay, Springs")
             assert.equal(location2, "North Bay, Springs")
             assert.equal(location3, "East Bay, Springs")
