@@ -37,7 +37,7 @@ Ensure the network is set to the local host on metamask.
 
 ---
 
-## Chainlink services and their purpose in the project
+## Chainlink services used in the project
 
 1. Data Feeds
 2. Verifiable Random Function
