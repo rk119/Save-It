@@ -261,7 +261,7 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
             FoodPlace memory fp = FoodPlace(
                 i_numOfFoodPlaces,
                 msg.sender,
-                "",
+                "default name",
                 "default location",
                 _amountInKG,
                 true
@@ -277,7 +277,11 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         );
         s_deliveryRequests.push(newRequest);
         // trigger an event for the new delivery request
-        fundDelivery();
+        uint cost = getUsdAmountInEth(27259000000);
+        uint balance = address(this).balance;
+        if (balance >= cost) {
+            fundDelivery();
+        }
         emit NewRequest(msg.sender, _amountInKG);
     }
 
@@ -316,9 +320,9 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         return s_foodPlaces[foodplace].amountDonated;
     }
 
-    function getAddressFromIndex(uint256 index) public view returns (address) {
-        return s_idToAddress[id];
-    }
+    // function getAddressFromIndex(uint256 index) public view returns (address) {
+    //     return s_idToAddress[id];
+    // }
 
     function addFoodie(string memory _food) public {
         s_foodies.push(Foodie(_food, msg.sender));
@@ -336,9 +340,7 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         return (upkeepNeeded, "0x0");
     }
 
-    function performUpkeep(
-        bytes calldata /* performData */
-    ) external override {
+    function performUpkeep(bytes calldata /* performData */) external override {
         (bool upkeepNeeded, ) = checkUpkeep("");
         if (!upkeepNeeded) {
             revert Lottery__UpkeepNotNeeded(

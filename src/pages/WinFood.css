@@ -12,3 +12,21 @@
     padding-left: 20%;
     padding-right: 20%;
 }
+
+.button {
+  background-color: #1a51e9; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 20px;
+  border-radius: 10px;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

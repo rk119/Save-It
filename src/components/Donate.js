@@ -19,10 +19,11 @@ const Donate = () => {
 
   // state hooks
   const [users, setUsers] = useState("0")
-  const [notif, setNotif] = useState()
-  const [status, setStatus] = useState("pending")
+  // const [notif, setNotif] = useState()
+  const [status, setStatus] = useState("N/A")
   const [balance, setBalance] = useState("0")
   const [depositValue, setDepositValue] = useState("")
+  const [minEth, setMinEth] = useState("0.005")
 
   const { runContractFunction: getDonators } = useWeb3Contract({
       abi: abi,
@@ -60,15 +61,17 @@ const Donate = () => {
     setStatus("Donation success!");
   }
 
-  const handleDepositError = async (e) => {
-    e.preventDefault()
-    const notification = "You are already a donator"
-    setNotif(notification)
-  }
+  // const handleDepositError = async (e) => {
+  //   e.preventDefault()
+  //   const notification = "You are already a donator"
+  //   setNotif(notification)
+  // }
 
   async function updateUIValues() {
-      const numPlayersFromCall = (await getDonators()).toString()
-      setUsers(numPlayersFromCall)
+    const donators = (await getDonators()).toString()
+    setUsers(donators)
+    let ethAmount = Number((await contract.getUsdAmountInEth(10))) / 10**9
+    setMinEth(ethAmount)
   }
 
   useEffect(() => {
@@ -96,6 +99,10 @@ const Donate = () => {
           <div className="col">
             <div className="dashboard">
               <div className="dashboardHeader">Dashboard</div>
+
+              <div className="space"></div>
+              <div className="space"></div>
+
               <div className="dashboardText">
                 Total Donations: {balance} ETH
               </div>
@@ -117,10 +124,9 @@ const Donate = () => {
             <div className="makeAD">
               <div className="makeADHeader">Make a Donation</div>
               <div className="makeADSub">
-                (Minimum value: 10USD or 0.0051 ETH)
+                Minimum value: {minEth} ETH (10 USD)
               </div>
-              <form onSubmit={handleDepositSubmit}
-              onError={handleDepositError}>
+              <form onSubmit={handleDepositSubmit}>
                 <div className="mb-3">
                   <input
                     type="number"
@@ -128,6 +134,7 @@ const Donate = () => {
                     placeholder="0"
                     onChange={handleDepositChange}
                     value={depositValue}
+                    min="0"
                   />
                 </div>
                 <button type="submit" className="btn btn-primary">

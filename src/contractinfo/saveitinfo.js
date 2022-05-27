@@ -341,6 +341,25 @@ export default {
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "foodplace",
+          "type": "address"
+        }
+      ],
+      "name": "getAmountDonated",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
           "name": "_ethAmount",
           "type": "uint256"
@@ -724,6 +743,11 @@ export default {
           "type": "string"
         },
         {
+          "internalType": "uint256",
+          "name": "amountDonated",
+          "type": "uint256"
+        },
+        {
           "internalType": "bool",
           "name": "registered",
           "type": "bool"
@@ -787,6 +811,13 @@ export default {
         }
       ],
       "name": "setName",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "setTopFooder",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

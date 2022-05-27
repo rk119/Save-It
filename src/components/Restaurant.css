@@ -3,7 +3,7 @@
 }
 
 .rmakeAD {
-  height: 250px;
+  height: 380px;
   /* width: 95%; */
   border-radius: 25px;
   background-color: rgb(246, 252, 255);
@@ -29,7 +29,7 @@
 }
 
 .rdashboard {
-  height: 530px;
+  height: 380px;
   border-radius: 25px;
   background-color: rgb(246, 252, 255);
   border: 3px solid rgb(244, 238, 238);
@@ -39,7 +39,7 @@
 }
 
 .rdashboardHeader {
-  font-size: 50px;
+  font-size: 30px;
   font-weight: 500;
   align-items: center;
   text-align: center;

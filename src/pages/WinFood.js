@@ -49,7 +49,7 @@ const WinFood = () => {
     const { isWeb3Enabled } = useMoralis()
     const [numberOfPlayers, setNumberOfPlayers] = useState("0")
     const [recentWinner, setRecentWinner] = useState("0x0000000")
-    const [foodie, setFoodie] = useState("foo")
+    // const [foodie, setFoodie] = useState("foo")
 
     // number of donators
     const { runContractFunction: getDonators } = useWeb3Contract({
@@ -69,10 +69,10 @@ const WinFood = () => {
         await contract.selectFood()
         const recentWinnerFromCall = await contract.getRecentWinner()
         console.log(recentWinnerFromCall)
-        const foodie = await contract.getWinnersFood()
-        console.log(foodie)
+        // const foodie = await contract.getWinnersFood()
+        // console.log(foodie)
         setRecentWinner(recentWinnerFromCall)
-        setFoodie(foodie)
+        // setFoodie(foodie)
     }
 
     useEffect(() => {
@@ -95,28 +95,25 @@ const WinFood = () => {
             <div className="mainHeader">Win Free Food!</div>
             <div className="longBodyText">
                 All donators automatically get added to a lottery. Every month a
-                random winner will be selected using Chainlink's VRF service.
-                The winner will be gifted free food for a day. Scrumptious!*
+                random winner will be selected using Chainlink's VRF service.*
             </div>
             <div className="mainHeader">Last month's winner:</div>
             <div className="longBodyText">
                 Congratulations to {recentWinner} for winning last month's
-                lottery! They won {foodie} !
+                lottery!
+                {/* They won {foodie} ! */}
             </div>
             <div className="mainHeader">Lottery Countdown</div>
             <div className="countdownText">{seconds} s</div>
             {/* testing the manual winner selection */}
-            <div className="row">
+            <div className="buttonContainer">
                 <button
                     className={`button button-primary button-primary-${
                         isActive ? "active" : "inactive"
                     }`}
                     onClick={toggle}
                 >
-                    {isActive ? "Pause" : "Start"}
-                </button>
-                <button className="button" onClick={reset}>
-                    Reset
+                    {isActive ? "Pause" : "Start Lottery"}
                 </button>
             </div>
             {/* end of testing block */}

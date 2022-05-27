@@ -15,23 +15,18 @@ const Restaurant = () => {
   const signer = provider.getSigner()
   const contract = new ethers.Contract(address, abi, signer)
 
-  const { Moralis, isWeb3Enabled, chainId: chainIdHex } = useMoralis()
+  const { isWeb3Enabled } = useMoralis()
 
   // state hooks
   const [users, setUsers] = useState("0")
   const [status, setStatus] = useState('waiting')
   const [amount, setAmount] = useState('')
   const [amountValue, setAmountValue] = useState("")
-  const [foodieValue, setFoodieValue] = useState("")
-  const [foodies, setFoodies] = useState("")
   const [balance, setBalance] = useState("0")
-
-  const { runContractFunction: getNumberOfFoodies } = useWeb3Contract({
-      abi: abi,
-      contractAddress: address,
-      functionName: "getNumberOfFoodies",
-      params: {},
-  })
+  const [name, setName] = useState("")
+  const [nameValue, setNameValue] = useState("")
+  const [location, setLocation] = useState("")
+  const [locationValue, setLocationValue] = useState("")
 
   const { runContractFunction: numOfFoodPlaces } = useWeb3Contract({
       abi: abi,
@@ -41,10 +36,12 @@ const Restaurant = () => {
   })
 
   async function updateUIValues() {
-    const foodies = (await getNumberOfFoodies()).toString()
     const users = (await numOfFoodPlaces()).toString()
-    setFoodies(foodies)
+    const name = (await contract.getName()).toString()
+    const location = (await contract.getLocation()).toString()
     setUsers(users)
+    setName(name)
+    setLocation(location)
   }
 
   useEffect(() => {
@@ -67,13 +64,24 @@ const Restaurant = () => {
     setAmountValue('');
   }
 
-  const handleFoodieChange = (e) => {
-    setFoodieValue(e.target.value)
+  const handleNameChange = (e) => {
+      setNameValue(e.target.value)
   }
 
-  const handleFoodieSubmit = async (e) => {
-    e.preventDefault();
-    await contract.addFoodie(foodieValue)
+  const handleNameSubmit = async (e) => {
+    e.preventDefault()
+    await contract.setName(nameValue)
+    setNameValue("")
+  }
+
+  const handleLocationChange = (e) => {
+      setLocationValue(e.target.value)
+  }
+
+  const handleLocationSubmit = async (e) => {
+    e.preventDefault()
+    await contract.setLocation(locationValue)
+    setLocationValue("")
   }
 
   return (
@@ -91,17 +99,43 @@ const Restaurant = () => {
         <div className="row mt-5">
           <div className="col">
 
+            {/* give food place info */}
             <div className="rdashboard">
-              <div className="rdashboardHeader">Dashboard</div>
-              <div className="rdashboardText">Your Request Status: {status}</div>
-              <div className="rdashboardText">Food Companies Registered: {users} </div>
-
-              <div className="space"></div>
-              <div className="space"></div>
-
               <div className="rdashboardHeader">Settings</div>
+
+              {/* set the food place name */}
               <div className="rdashboardText">Set Name: </div>
+              <form onSubmit={handleNameSubmit}>
+                <div className="mb-3">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder=""
+                    onChange={handleNameChange}
+                    value={nameValue}
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary">
+                  Save Name
+                </button>
+              </form>
+
+              {/* set the food place location */}
               <div className="rdashboardText">Set Location: </div>
+              <form onSubmit={handleLocationSubmit}>
+                <div className="mb-3">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder=""
+                    onChange={handleLocationChange}
+                    value={locationValue}
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary">
+                  Save Location
+                </button>
+              </form>
             </div>
           </div>
 
@@ -125,35 +159,14 @@ const Restaurant = () => {
                   Request Delivery
                 </button>
               </form>
+
+              <div className="space"></div>
+
+              <div className="rdashboardText">Your Request Status: {status}</div>
+              <div className="rdashboardText">Food Companies Registered: {users} </div>
             </div>
 
-            <div className="space"></div>
-            
-            <div className="addFoodie">
-            <div>
-              <div className="rdashboardHeader">Add Foodie</div>
-              <div className="rdashboardText">Number of foodies: { foodies } </div> 
-              <form onSubmit={handleFoodieSubmit}>
-                <div className="mb-3">
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder=""
-                    onChange={handleFoodieChange}
-                    value={foodieValue}
-                  />
-                </div>
-                <button type="submit" className="btn btn-primary">
-                  Push Foodie
-                </button>
-              </form>
-              {/* <div className="rdashboardText">Location: West Bay, Springs </div>  */}
-            </div>
           </div>
-          </div>
-
-          
-          
         </div>
       </div>
     </>
