@@ -179,8 +179,8 @@ describe("SaveIt Unit Tests", async function () {
         beforeEach(async () => {
             await saveit.connect(foodplace1).requestDelivery(30)
             numOfFoodPlaces = await saveit.numOfFoodPlaces()
-            name = await saveit.connect(foodplace1).getName()
-            location = await saveit.connect(foodplace1).getLocation()
+            name = await saveit.getName(foodplace1.address)
+            location = await saveit.getLocation(foodplace1.address)
         })
         it("registers a food place", async () => {
             assert.equal(numOfFoodPlaces, 1)
@@ -203,7 +203,7 @@ describe("SaveIt Unit Tests", async function () {
         })
     })
 
-    describe("registering multiple new food places", async () => {
+    xdescribe("registering multiple new food places", async () => {
         let numOfFoodPlaces
         let name1, name2, name3, name4
         let location1, location2, location3, location4
@@ -340,7 +340,18 @@ describe("SaveIt Unit Tests", async function () {
             )
         })
         it("notifies the donator which restaurant used their donation", async () => {
-            expect(await saveit.connect(foodplace1).requestDelivery(30)).to.emit(saveit, "NotifyDonator")
+            let foodplaceName = saveit.getName(foodplace1.address)
+            expect(await saveit.connect(foodplace1).requestDelivery(30))
+                .to.emit(saveit, "NotifyDonator")
+                .withArgs(
+                    [donator1, donator2, donator3],
+                    [
+                        saveit.getUsdAmountInEth(10),
+                        saveit.getUsdAmountInEth(10),
+                        saveit.getUsdAmountInEth(5),
+                    ],
+                    foodplaceName
+                )
         })
         it("handles the request", async () => {
             expect(await saveit.connect(foodplace1).requestDelivery(30)).to.emit(saveit, "RequestFunded")

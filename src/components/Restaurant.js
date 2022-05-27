@@ -59,7 +59,7 @@ const Restaurant = () => {
     e.preventDefault();
     await contract.requestDelivery(amountValue)
     console.log('success')
-    setStatus("Funded!")
+    setStatus("Donated!")
     setAmount(amountValue)
     setAmountValue('');
   }
@@ -162,7 +162,7 @@ const Restaurant = () => {
 
               <div className="space"></div>
 
-              <div className="rdashboardText">Your Request Status: {status}</div>
+              <div className="rdashboardText">Your Donation Status: {status}</div>
               <div className="rdashboardText">Food Companies Registered: {users} </div>
             </div>
 

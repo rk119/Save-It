@@ -60,10 +60,12 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
     address[] s_foodPlaceAddresses;
     event NewRequest(address requester, uint256 amountInKG);
     event NotifyDonator(
-        address donator,
-        uint256 donation,
+        address[] donators,
+        uint256[] donation,
         string foodPlaceName
     );
+    address[] notifArray;
+    uint256[] amountArray;
     event RequestFunded(address requester, uint index);
 
     // dlottery variables
@@ -82,7 +84,7 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
     uint256 private immutable i_interval;
     uint256 private s_lastTimeStamp;
     address private s_recentWinner;
-    string private s_winnersFood;
+    string private s_winnersFoodplace;
     uint256 private i_numOfFoodies;
     address private s_currentWinner;
     uint256 private i_entranceFee;
@@ -213,6 +215,8 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
                         // payable(i_owner).transfer(cost);
                         (bool success, ) = i_owner.call{value: cost}("");
                         require(success);
+                        notifArray.push(donator);
+                        amountArray.push(withdrawn);
                     }
                     if (amount < cost) {
                         // withdrawn = uint(withdraw(donator, amount));
@@ -221,10 +225,11 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
                         // payable(i_owner).transfer(amount);
                         (bool success, ) = i_owner.call{value: amount}("");
                         require(success);
+                        notifArray.push(donator);
+                        amountArray.push(withdrawn);
                     }
                     cost -= withdrawn;
-                    emit NotifyDonator(donator, withdrawn, request.name);
-                    emit RequestFunded(request.requester, k);
+                    // emit RequestFunded(request.requester, k);
                 }
                 i++;
             }
@@ -235,6 +240,9 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
                 s_deliveryRequests.pop();
             }
         }
+        emit NotifyDonator(notifArray, amountArray, request.name);
+        delete notifArray;
+        delete amountArray;
     }
 
     function getEntries() public view returns (uint256) {
@@ -308,12 +316,12 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         return s_deliveryRequests.length;
     }
 
-    function getName() external view returns (string memory) {
-        return s_foodPlaces[msg.sender].name;
+    function getName(address foodplace) external view returns (string memory) {
+        return s_foodPlaces[foodplace].name;
     }
 
-    function getLocation() external view returns (string memory) {
-        return s_foodPlaces[msg.sender].location;
+    function getLocation(address foodplace) external view returns (string memory) {
+        return s_foodPlaces[foodplace].location;
     }
 
     function getAmountDonated(address foodplace) public view returns (uint256) {
@@ -379,19 +387,19 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
             uint256 indexOfWinner = random(s_totalDonators);
             address recentWinner = s_donators[indexOfWinner];
             s_recentWinner = recentWinner;
-            selectFood();
+            selectFoodPlace();
             // resetEntries();
             s_lotteryState = LotteryState.OPEN;
             s_lastTimeStamp = block.timestamp;
         }
     }
     // temporary select food function for testing
-    function selectFood() public {
-        uint size = s_foodies.length;
-        if (size > 0) {
-            uint256 indexOfFoodie = random(size);
-            Foodie memory foodie = s_foodies[indexOfFoodie];
-            s_winnersFood = foodie.food;
+    function selectFoodPlace() public {
+        if (i_numOfFoodPlaces > 0) {
+            uint256 indexOfFoodplace = random(i_numOfFoodPlaces);
+            address fpAddress = s_foodPlaceAddresses[indexOfFoodplace];
+            FoodPlace memory fp = s_foodPlaces[fpAddress];
+            s_winnersFoodplace = fp.name;
         }
     }
     // temporary random function for testing
@@ -418,8 +426,8 @@ contract SaveIt is Ownable, VRFConsumerBaseV2, KeeperCompatibleInterface {
         return s_recentWinner;
     }
 
-    function getWinnersFood() public view returns (string memory) {
-        return s_winnersFood;
+    function getWinnersFoodplace() public view returns (string memory) {
+        return s_winnersFoodplace;
     }
 
     function getLastTimeStamp() public view returns (uint256) {

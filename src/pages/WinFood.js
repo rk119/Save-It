@@ -49,7 +49,7 @@ const WinFood = () => {
     const { isWeb3Enabled } = useMoralis()
     const [numberOfPlayers, setNumberOfPlayers] = useState("0")
     const [recentWinner, setRecentWinner] = useState("0x0000000")
-    // const [foodie, setFoodie] = useState("foo")
+    const [foodplace, setFoodplace] = useState("FoodPlace 0")
 
     // number of donators
     const { runContractFunction: getDonators } = useWeb3Contract({
@@ -61,18 +61,17 @@ const WinFood = () => {
 
     async function updateUIValues() {
         const numPlayersFromCall = (await getDonators()).toString()
-        setNumberOfPlayers(numPlayersFromCall)
+        setNumberOfPlayers("1")
     }
 
     async function winner() {
         await contract.pickAWinner()
-        await contract.selectFood()
         const recentWinnerFromCall = await contract.getRecentWinner()
         console.log(recentWinnerFromCall)
-        // const foodie = await contract.getWinnersFood()
-        // console.log(foodie)
+        const foodPlace = await contract.getWinnersFoodplace()
+        console.log(foodPlace)
         setRecentWinner(recentWinnerFromCall)
-        // setFoodie(foodie)
+        setFoodplace(foodPlace)
     }
 
     useEffect(() => {
@@ -100,8 +99,7 @@ const WinFood = () => {
             <div className="mainHeader">Last month's winner:</div>
             <div className="longBodyText">
                 Congratulations to {recentWinner} for winning last month's
-                lottery!
-                {/* They won {foodie} ! */}
+                lottery! They win food from {foodplace} !
             </div>
             <div className="mainHeader">Lottery Countdown</div>
             <div className="countdownText">{seconds} s</div>

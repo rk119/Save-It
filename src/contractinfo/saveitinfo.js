@@ -467,7 +467,13 @@ export default {
       "type": "function"
     },
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "foodplace",
+          "type": "address"
+        }
+      ],
       "name": "getLocation",
       "outputs": [
         {
@@ -493,7 +499,13 @@ export default {
       "type": "function"
     },
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "foodplace",
+          "type": "address"
+        }
+      ],
       "name": "getName",
       "outputs": [
         {
@@ -591,7 +603,7 @@ export default {
     },
     {
       "inputs": [],
-      "name": "getWinnersFood",
+      "name": "getWinnersFoodplace",
       "outputs": [
         {
           "internalType": "string",
@@ -784,7 +796,7 @@ export default {
     },
     {
       "inputs": [],
-      "name": "selectFood",
+      "name": "selectFoodPlace",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

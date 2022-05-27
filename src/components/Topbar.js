@@ -26,14 +26,14 @@ const Topbar = () => {
           </div>
         </Link>
       </div>
-      <div className="topbarContent">
+      {/* <div className="topbarContent">
         <Link to="/rankings" className="link">
           <div className="menuItems">
             <Icon fill="#C91B10" size={20} svg="chart"></Icon>
             Top Fooders
           </div>
         </Link>
-      </div>
+      </div> */}
       <div className="topbarContent">
         <Link to="/winfood" className="link">
           <div className="menuItems">
