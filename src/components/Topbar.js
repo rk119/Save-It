@@ -12,7 +12,7 @@ const Topbar = () => {
           <div className="menuItems">
             {/* <Icon fill="#656565" size={20} svg="list"></Icon> */}
             <div className="logoNav">
-              <img className="logoNavi" src={logo}></img>
+              <img className="logoNavi" src={logo} alt="logo"></img>
               Home
             </div>
           </div>

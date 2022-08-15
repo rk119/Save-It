@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import "./Restaurant.css"
 import "../pages/User.css"
 import { ethers } from "ethers"
@@ -16,13 +16,13 @@ const Restaurant = () => {
   const contract = new ethers.Contract(address, abi, signer)
 
   const { isWeb3Enabled } = useMoralis()
-
+  
   // state hooks
   const [users, setUsers] = useState("0")
   const [status, setStatus] = useState('waiting')
-  const [amount, setAmount] = useState('')
+  // const [amount, setAmount] = useState('')
   const [amountValue, setAmountValue] = useState("")
-  const [balance, setBalance] = useState("0")
+  // const [balance, setBalance] = useState("0")
   const [nameValue, setNameValue] = useState("")
   const [locationValue, setLocationValue] = useState("")
 
@@ -34,8 +34,8 @@ const Restaurant = () => {
   })
 
   async function updateUIValues() {
-    const users = (await numOfFoodPlaces()).toString()
-    setUsers(users)
+    const users = (await numOfFoodPlaces())
+    setUsers(users.toNumber())
   }
 
   useEffect(() => {
@@ -52,9 +52,9 @@ const Restaurant = () => {
   const handleRequestSubmit = async (e) => {
     e.preventDefault();
     await contract.requestDelivery(amountValue)
-    console.log('success')
+    // console.log('success')
     setStatus("Donated!")
-    setAmount(amountValue)
+    // setAmount(amountValue)
     setAmountValue('');
   }
 

@@ -20,7 +20,7 @@ const Home = () => {
         <div className="col"></div>
         <div className="col">
           <div className="logo">
-            <img className="logoImg" src={logo}></img>
+            <img className="logoImg" src={logo} alt="logo"></img>
           </div>
           <div className="hmainHeader"> Save It!</div>
           <div className="hheaderSubtext">

@@ -16,7 +16,7 @@ const Donate = () => {
   const contract = new ethers.Contract(address, abi, signer)
 
   const { isWeb3Enabled } = useMoralis()
-
+  
   // state hooks
   const [users, setUsers] = useState("0")
   const [status, setStatus] = useState("N/A")
@@ -41,8 +41,8 @@ const Donate = () => {
       setBalance(ethers.utils.formatEther(balance));
     }
 
-    requestAccounts().catch(console.error)
-    getBalance().catch(console.error)
+    requestAccounts().catch()
+    getBalance().catch()
   }, [])
 
   const handleDepositChange = (e) => {
@@ -61,8 +61,8 @@ const Donate = () => {
   }
 
   async function updateUIValues() {
-    const donators = (await getDonators()).toString()
-    setUsers(donators)
+    const donators = (await getDonators())
+    setUsers(donators.toNumber())
     let ethAmount = Number((await contract.getUsdAmountInEth(10))) / 10**9
     setMinEth(ethAmount)
   }

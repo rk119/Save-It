@@ -59,17 +59,35 @@ const WinFood = () => {
         params: {},
     })
 
+    // get winner
+    const { runContractFunction: getRecentWinner } = useWeb3Contract({
+      abi: abi,
+      contractAddress: address,
+      functionName: "getRecentWinner",
+      params: {},
+    })
+
+    // get winners food place
+    const { runContractFunction: getWinnersFoodplace } = useWeb3Contract({
+      abi: abi,
+      contractAddress: address,
+      functionName: "getWinnersFoodplace",
+      params: {},
+    })
+
     async function updateUIValues() {
-        const numPlayersFromCall = (await getDonators()).toString()
-        setNumberOfPlayers(numPlayersFromCall)
+        const numPlayersFromCall = (await getDonators())
+        setNumberOfPlayers(numPlayersFromCall.toNumber())
+        const winner = (await getRecentWinner())
+        setRecentWinner(winner)
     }
 
     async function winner() {
         await contract.pickAWinner()
-        const recentWinnerFromCall = await contract.getRecentWinner()
-        console.log(recentWinnerFromCall)
-        const foodPlace = await contract.getWinnersFoodplace()
-        console.log(foodPlace)
+        const recentWinnerFromCall = (await getRecentWinner())
+        // console.log(recentWinnerFromCall)
+        const foodPlace = await getWinnersFoodplace()
+        // console.log(foodPlace)
         setRecentWinner(recentWinnerFromCall)
         setFoodplace(foodPlace)
     }
@@ -78,7 +96,7 @@ const WinFood = () => {
         if (isWeb3Enabled) {
             updateUIValues()
             if (seconds === 0) {
-                console.log('pick a winner')
+                // console.log('pick a winner')
             }
         }
     }, [isWeb3Enabled])
