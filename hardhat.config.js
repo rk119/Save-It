@@ -2,19 +2,18 @@
  * @type import('hardhat/config').HardhatUserConfig
  */
 
-require("solidity-coverage")
-require("hardhat-deploy")
-require("@nomiclabs/hardhat-waffle")
-require("dotenv").config()
+require("solidity-coverage");
+require("hardhat-deploy");
+require("@nomiclabs/hardhat-waffle");
+require("dotenv").config();
 
-const RINKEBY_RPC_KEY = "Your API Key"
+const RINKEBY_RPC_KEY = "Your API Key";
 
 // Replace this private key with your Ropsten account private key
 // To export your private key from Metamask, open Metamask and
 // go to Account Details > Export Private Key
 // Be aware of NEVER putting real Ether into testing accounts
-const PRIVATE_KEY = "Your private key (testing only)"
-
+const PRIVATE_KEY = "Your private key (testing only)";
 
 module.exports = {
   defaultNetwork: "hardhat",
@@ -25,12 +24,12 @@ module.exports = {
     localhost: {
       chainId: 31337,
     },
-    rinkeby: {
-      url: `https://eth-rinkeby.alchemyapi.io/v2/${RINKEBY_RPC_KEY}`,
-      accounts: [`${PRIVATE_KEY}`],
-      // chainId: 4,
-      // saveDeployments: true
-    }
+    // rinkeby: {
+    //   url: `https://eth-rinkeby.alchemyapi.io/v2/${RINKEBY_RPC_KEY}`,
+    //   accounts: [`${PRIVATE_KEY}`],
+    //   // chainId: 4,
+    //   // saveDeployments: true
+    // }
   },
   namedAccounts: {
     deployer: {
@@ -56,7 +55,7 @@ module.exports = {
     sources: "./contracts",
     tests: "./test",
     cache: "./cache",
-    artifacts: "./artifacts"
+    artifacts: "./artifacts",
   },
 
   mocha: {
