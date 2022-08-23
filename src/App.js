@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import User from "./pages/User";
 import Donate from "./components/Donate";
-import Restaurant from "./components/Restaurant";
+import Delivery from "./components/Delivery";
 import Rankings from "./pages/Rankings";
 import WinFood from "./pages/WinFood";
 import Topbar from "./components/Topbar";
@@ -21,7 +21,7 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/user" element={<User />} />
             <Route path="/donate" element={<Donate />} />
-            <Route path="/restaurant" element={<Restaurant />} />
+            <Route path="/delivery" element={<Delivery />} />
             <Route path="/rankings" element={<Rankings />} />
             <Route path="/winfood" element={<WinFood />} />
           </Routes>

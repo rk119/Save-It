@@ -12,7 +12,7 @@ contract Donate is Ownable {
     address public immutable i_owner;
     address public s_converter;
     address public s_delivery;
-    uint256 public constant MIN_USD = 10 * 10**18; // minimum donation amount
+    uint256 public constant MIN_USD = 10 * 10 ** 18; // minimum donation amount
     bool private success = false;
 
     constructor(address _converterAddress) {
@@ -40,17 +40,17 @@ contract Donate is Ownable {
         uint256 cost = Converter(s_converter).usdToETH(25);
         uint balance = address(this).balance;
         if (balance < cost) return false;
-
+        
         address[] memory d = s_donators;
-        uint i = 0;
-        uint withdrawn = 0;
-        uint transfer = 0;
+        uint i = 0; uint withdrawn = 0; uint transfer = 0;
         while (cost > 0) {
             address donator = d[i];
             uint amount = s_donations[donator];
             if (amount > 0) {
-                if (amount < cost) withdrawn = amount;
-                else withdrawn = cost;
+                if (amount < cost)
+                    withdrawn = amount;
+                else
+                    withdrawn = cost;
             }
             transfer += withdrawn;
             s_donations[donator] -= withdrawn;

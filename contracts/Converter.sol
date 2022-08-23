@@ -16,17 +16,19 @@ contract Converter {
 
     function getPrice() internal view returns (uint256) {
         (, int256 answer, , , ) = s_priceFeed.latestRoundData();
-        return uint256(answer * 10**10);
+        return uint256(answer * 10 ** 10);
     }
 
     // ETH to USD conversion
-    function ethToUSD(uint256 _ethAmount) public view returns (uint256) {
+    function ethToUSD(uint256 _ethAmount)
+        public view returns (uint256) {
         uint256 ethPrice = getPrice();
         return (ethPrice * _ethAmount) / (10**18);
     }
 
     // USD to ETH conversion
-    function usdToETH(uint256 _usdAmount) public view returns (uint256) {
+    function usdToETH(uint256 _usdAmount)
+        public view returns (uint256) {
         _usdAmount = _usdAmount * (10**18);
         uint256 ethPrice = getPrice();
         return (_usdAmount / (ethPrice / (10**18)));

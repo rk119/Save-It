@@ -13,7 +13,7 @@ const User = () => {
     {
       type: "Donate Food",
       text: "For established food organizations only.*",
-      link: "http://localhost:3000/restaurant",
+      link: "http://localhost:3000/delivery",
     },
   ]
 

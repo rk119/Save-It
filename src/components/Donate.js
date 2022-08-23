@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from "react"
 import { useMoralis, useWeb3Contract } from "react-moralis"
-import "./Donate.css"
-import "../pages/User.css"
 import { ethers } from "ethers"
 import { ConnectButton } from "web3uikit"
+import "./Donate.css"
+import "../pages/User.css"
 import bg from "../images/pexels-donate.png"
-import saveitinfo from "../contractinfo/saveitinfo"
-import contractAddresses from "../contractinfo/addresses"
+import addresses from "../contractinfo/addresses"
+import abis from "../contractinfo/abis"
 
 const Donate = () => {
   const provider = new ethers.providers.Web3Provider(window.ethereum)
-  const address = contractAddresses.saveit
-  const abi = saveitinfo.abi
+  const address = addresses.donate
+  const abi = abis.donate
   const signer = provider.getSigner()
   const contract = new ethers.Contract(address, abi, signer)
 
   const { isWeb3Enabled } = useMoralis()
-  
+
   // state hooks
   const [users, setUsers] = useState("0")
   const [status, setStatus] = useState("N/A")
@@ -25,25 +25,25 @@ const Donate = () => {
   const [minEth, setMinEth] = useState("0.005")
 
   const { runContractFunction: getDonators } = useWeb3Contract({
-      abi: abi,
-      contractAddress: address,
-      functionName: "getDonators",
-      params: {},
+    abi: abi,
+    contractAddress: address,
+    functionName: "getDonators",
+    params: {},
   })
 
   useEffect(() => {
     const requestAccounts = async () => {
-      await provider.send("eth_requestAccounts", []);
+      await provider.send("eth_requestAccounts", [])
     }
 
     const getBalance = async () => {
-      const balance = await provider.getBalance(address);
-      setBalance(ethers.utils.formatEther(balance));
+      const funds = await provider.getBalance(address)
+      setBalance(ethers.utils.formatEther(funds))
     }
 
     requestAccounts().catch()
     getBalance().catch()
-  }, [])
+  })
 
   const handleDepositChange = (e) => {
     setDepositValue(e.target.value)
@@ -51,26 +51,25 @@ const Donate = () => {
   }
 
   const handleDepositSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
     const ethValue = ethers.utils.parseEther(depositValue)
-    const deposit = await contract.donate({ value: ethValue });
-    await deposit.wait();
-    const contractBalance = await provider.getBalance(address);
-    setBalance(ethers.utils.formatEther(contractBalance));
-    setStatus("Donation success!");
+    const deposit = await contract.donate({ value: ethValue })
+    await deposit.wait()
+    const contractBalance = await provider.getBalance(address)
+    setBalance(ethers.utils.formatEther(contractBalance))
+    setStatus("Donation success!")
   }
 
   async function updateUIValues() {
-    const donators = (await getDonators())
+    const donators = await getDonators()
     setUsers(donators.toNumber())
-    let ethAmount = Number((await contract.getUsdAmountInEth(10))) / 10**9
-    setMinEth(ethAmount)
+    setMinEth("0.005")
   }
 
   useEffect(() => {
-      if (isWeb3Enabled) {
-          updateUIValues()
-      }
+    if (isWeb3Enabled) {
+      updateUIValues()
+    }
   }, [isWeb3Enabled])
 
   return (
