@@ -3,7 +3,7 @@
 </p>
 
 ## Intro: What is SaveIt?
-On a daily basis, food in many restaurants are often thrown out in large quantities, which results in immense food wastage. More than 40% of food is wasted in the US alone, the numbers globally are frightening. What if this food could be used before it expires? That's where **Save It** comes in. **Save It** allows food companies to donate their unsold food before it expires. This food will be transported and distributed to people in need and donators can fund these transportion and services with ETH!
+On a daily basis, food in many restaurants are often thrown out in large quantities, which results in immense food wastage. More than 40% of food is wasted in the US alone, the numbers globally are frightening. What if this food could be used before it expires? That's where **Save It** comes in. **Save It** allows food companies to donate their unsold food before it expires. This food will be transported and distributed to people in need and donators can fund these transportations and services with ETH!
 
 ---
 
